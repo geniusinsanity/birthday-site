@@ -264,3 +264,4 @@ Commit at 2025-01-25T15:33:18.051542 - Fix dropdown menu alignment
 Commit at 2025-02-04T15:52:00.051542 - Add cake selection feature
 Commit at 2025-02-06T23:01:22.051542 - Update party theme colors
 Commit at 2025-02-12T16:16:51.051542 - Improve loading performance
+Commit at 2025-02-13T21:58:29.051542 - Add RSVP tracking system
