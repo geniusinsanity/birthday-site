@@ -272,3 +272,4 @@ Commit at 2025-03-07T18:00:54.051542 - Add music player to celebration page
 Commit at 2025-03-10T17:17:59.051542 - Add cake selection feature
 Commit at 2025-03-11T18:54:27.051542 - Fix responsive layout on mobile
 Commit at 2025-03-13T09:01:25.051542 - Minor UI polish
+Commit at 2025-03-14T14:00:29.051542 - Improve photo gallery styling
