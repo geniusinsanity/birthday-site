@@ -275,3 +275,4 @@ Commit at 2025-03-13T09:01:25.051542 - Minor UI polish
 Commit at 2025-03-14T14:00:29.051542 - Improve photo gallery styling
 Commit at 2025-03-15T11:32:16.051542 - Update guest invitation form
 Commit at 2025-03-16T18:08:34.051542 - Fix button hover states
+Commit at 2025-03-22T15:09:53.050531 - Add birthday countdown timer
