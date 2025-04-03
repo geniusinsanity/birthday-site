@@ -283,3 +283,4 @@ Commit at 2025-03-31T11:35:28.051542 - Improve loading performance
 Commit at 2025-03-31T17:20:30.051542 - Add confetti animation on birthday
 Commit at 2025-03-31T23:22:16.051542 - Add gift registry section
 Commit at 2025-03-31T23:42:37.051542 - Add gift registry section
+Commit at 2025-04-03T22:25:53.051542 - Refactor birthday calculator logic
