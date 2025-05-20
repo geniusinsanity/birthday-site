@@ -296,3 +296,4 @@ Commit at 2025-05-11T16:45:17.050531 - Add email notification feature
 Commit at 2025-05-13T20:27:21.051542 - Improve loading performance
 Commit at 2025-05-15T14:47:58.051542 - Update party theme colors
 Commit at 2025-05-20T12:48:38.050531 - Improve photo gallery styling
+Commit at 2025-05-20T17:17:43.051542 - Update party theme colors
