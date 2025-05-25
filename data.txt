@@ -301,3 +301,4 @@ Commit at 2025-05-21T15:04:51.051542 - Add birthday countdown timer
 Commit at 2025-05-21T15:48:07.051542 - Add birthday countdown timer
 Commit at 2025-05-21T23:49:34.051542 - Fix form validation errors
 Commit at 2025-05-22T10:12:54.051542 - Add cake selection feature
+Commit at 2025-05-25T11:27:16.051542 - Update navigation menu
