@@ -305,3 +305,4 @@ Commit at 2025-05-25T11:27:16.051542 - Update navigation menu
 Commit at 2025-06-01T19:52:59.051542 - Add music player to celebration page
 Commit at 2025-06-02T13:24:54.051542 - Improve accessibility for forms
 Commit at 2025-06-02T21:28:26.051542 - Fix form validation errors
+Commit at 2025-06-02T23:02:23.051542 - Fix dropdown menu alignment
