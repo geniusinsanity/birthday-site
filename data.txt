@@ -309,3 +309,4 @@ Commit at 2025-06-02T23:02:23.051542 - Fix dropdown menu alignment
 Commit at 2025-06-06T13:47:22.051542 - Add music player to celebration page
 Commit at 2025-06-07T12:12:19.051542 - Refactor birthday calculator logic
 Commit at 2025-06-10T20:37:11.050531 - Add guest comment section
+Commit at 2025-06-11T15:19:37.050531 - Fix responsive layout on mobile
