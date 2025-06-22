@@ -316,3 +316,4 @@ Commit at 2025-06-20T09:05:56.051542 - Add RSVP tracking system
 Commit at 2025-06-21T13:51:03.051542 - Fix responsive layout on mobile
 Commit at 2025-06-21T14:31:20.051542 - Update font sizes for better readability
 Commit at 2025-06-21T19:04:41.051542 - Add gift registry section
+Commit at 2025-06-22T18:51:13.051542 - Add email notification feature
