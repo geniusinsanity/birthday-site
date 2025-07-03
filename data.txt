@@ -321,3 +321,4 @@ Commit at 2025-06-24T20:21:53.051542 - Improve accessibility for forms
 Commit at 2025-06-26T17:10:18.051542 - Add memories carousel
 Commit at 2025-07-01T11:57:17.051542 - Add cake selection feature
 Commit at 2025-07-02T16:35:12.051542 - Add guest comment section
+Commit at 2025-07-03T12:15:33.050531 - Update font sizes for better readability
