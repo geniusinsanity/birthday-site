@@ -323,3 +323,4 @@ Commit at 2025-07-01T11:57:17.051542 - Add cake selection feature
 Commit at 2025-07-02T16:35:12.051542 - Add guest comment section
 Commit at 2025-07-03T12:15:33.050531 - Update font sizes for better readability
 Commit at 2025-07-05T11:33:54.050531 - Fix timezone handling for dates
+Commit at 2025-07-09T09:51:47.051542 - Add decorative balloons animation
