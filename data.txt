@@ -343,3 +343,4 @@ Commit at 2025-08-12T12:00:18.051542 - Add gift registry section
 Commit at 2025-08-12T12:23:46.051542 - Add cake selection feature
 Commit at 2025-08-13T18:43:00.051542 - Update font sizes for better readability
 Commit at 2025-08-14T17:55:58.050531 - Improve photo gallery styling
+Commit at 2025-08-15T18:26:58.051542 - Add memories carousel
