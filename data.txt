@@ -347,3 +347,4 @@ Commit at 2025-08-15T18:26:58.051542 - Add memories carousel
 Commit at 2025-08-17T13:01:49.051542 - Update party theme colors
 Commit at 2025-08-18T16:09:27.050531 - Add memories carousel
 Commit at 2025-08-23T15:03:11.051542 - Add email notification feature
+Commit at 2025-08-26T09:20:38.051542 - Add guest comment section
