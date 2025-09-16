@@ -354,3 +354,4 @@ Commit at 2025-09-07T11:11:19.051542 - Update font sizes for better readability
 Commit at 2025-09-08T12:53:41.051542 - Add guest comment section
 Commit at 2025-09-08T17:38:12.050531 - Update celebration timeline
 Commit at 2025-09-08T21:33:48.051542 - Fix timezone handling for dates
+Commit at 2025-09-16T20:55:50.051542 - Improve loading performance
