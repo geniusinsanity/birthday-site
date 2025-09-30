@@ -356,3 +356,4 @@ Commit at 2025-09-08T17:38:12.050531 - Update celebration timeline
 Commit at 2025-09-08T21:33:48.051542 - Fix timezone handling for dates
 Commit at 2025-09-16T20:55:50.051542 - Improve loading performance
 Commit at 2025-09-26T13:39:36.051542 - Add gift registry section
+Commit at 2025-09-30T11:34:51.051542 - Fix timezone handling for dates
