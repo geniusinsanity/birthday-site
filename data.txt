@@ -360,3 +360,4 @@ Commit at 2025-09-30T11:34:51.051542 - Fix timezone handling for dates
 Commit at 2025-09-30T23:22:57.051542 - Add guest list management
 Commit at 2025-10-02T11:45:01.051542 - Add guest list management
 Commit at 2025-10-02T17:35:20.051542 - Add memories carousel
+Commit at 2025-10-05T18:05:08.051542 - Add RSVP tracking system
