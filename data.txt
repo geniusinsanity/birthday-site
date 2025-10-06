@@ -361,3 +361,4 @@ Commit at 2025-09-30T23:22:57.051542 - Add guest list management
 Commit at 2025-10-02T11:45:01.051542 - Add guest list management
 Commit at 2025-10-02T17:35:20.051542 - Add memories carousel
 Commit at 2025-10-05T18:05:08.051542 - Add RSVP tracking system
+Commit at 2025-10-06T09:34:33.051542 - Add confetti animation on birthday
