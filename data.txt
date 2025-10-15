@@ -368,3 +368,4 @@ Commit at 2025-10-11T10:04:55.051542 - Improve accessibility for forms
 Commit at 2025-10-12T11:04:29.050531 - Fix date picker styling
 Commit at 2025-10-14T10:42:40.051542 - Improve accessibility for forms
 Commit at 2025-10-14T16:47:44.051542 - Add event details page
+Commit at 2025-10-15T19:11:44.051542 - Add decorative balloons animation
