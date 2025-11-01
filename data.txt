@@ -375,3 +375,4 @@ Commit at 2025-10-20T09:24:04.051542 - Add guest list management
 Commit at 2025-10-20T19:05:07.051542 - Update celebration timeline
 Commit at 2025-10-24T12:47:46.051542 - Update font sizes for better readability
 Commit at 2025-10-27T11:21:42.051542 - Fix dropdown menu alignment
+Commit at 2025-11-01T23:58:44.051542 - Improve photo gallery styling
