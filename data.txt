@@ -376,3 +376,4 @@ Commit at 2025-10-20T19:05:07.051542 - Update celebration timeline
 Commit at 2025-10-24T12:47:46.051542 - Update font sizes for better readability
 Commit at 2025-10-27T11:21:42.051542 - Fix dropdown menu alignment
 Commit at 2025-11-01T23:58:44.051542 - Improve photo gallery styling
+Commit at 2025-11-05T15:59:29.051542 - Update banner images
