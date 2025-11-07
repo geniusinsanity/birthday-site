@@ -378,3 +378,4 @@ Commit at 2025-10-27T11:21:42.051542 - Fix dropdown menu alignment
 Commit at 2025-11-01T23:58:44.051542 - Improve photo gallery styling
 Commit at 2025-11-05T15:59:29.051542 - Update banner images
 Commit at 2025-11-05T16:44:35.050531 - Update guest invitation form
+Commit at 2025-11-07T13:35:07.051542 - Refactor birthday calculator logic
