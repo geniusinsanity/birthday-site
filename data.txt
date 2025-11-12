@@ -382,3 +382,4 @@ Commit at 2025-11-07T13:35:07.051542 - Refactor birthday calculator logic
 Commit at 2025-11-07T19:47:42.051542 - Fix dropdown menu alignment
 Commit at 2025-11-09T14:18:58.050531 - Add gift registry section
 Commit at 2025-11-10T16:42:19.051542 - Fix dropdown menu alignment
+Commit at 2025-11-12T21:29:34.050531 - Add confetti animation on birthday
