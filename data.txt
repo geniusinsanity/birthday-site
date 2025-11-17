@@ -384,3 +384,4 @@ Commit at 2025-11-09T14:18:58.050531 - Add gift registry section
 Commit at 2025-11-10T16:42:19.051542 - Fix dropdown menu alignment
 Commit at 2025-11-12T21:29:34.050531 - Add confetti animation on birthday
 Commit at 2025-11-12T22:35:54.050531 - Update color scheme
+Commit at 2025-11-17T15:46:48.050531 - Fix timezone handling for dates
