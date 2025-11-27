@@ -386,3 +386,4 @@ Commit at 2025-11-12T21:29:34.050531 - Add confetti animation on birthday
 Commit at 2025-11-12T22:35:54.050531 - Update color scheme
 Commit at 2025-11-17T15:46:48.050531 - Fix timezone handling for dates
 Commit at 2025-11-25T13:27:09.050531 - Improve loading performance
+Commit at 2025-11-27T10:14:51.051542 - Fix dropdown menu alignment
