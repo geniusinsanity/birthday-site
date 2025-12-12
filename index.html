@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GS Birthday Site 🎁</title>
+    <meta name="language" content="zh-CN">
+    <meta name="description" content="A special birthday surprise! A beautiful interactive site with animations, music, and memories!">
+
+    <!-- Favicon and Icons -->
+    <link rel="icon" href="./image/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="./image/logo.png">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="GS Birthday Site 🎁">
+    <meta property="og:description"
+        content="A special birthday surprise! A beautiful interactive site with animations, music, and memories!">
+    <meta property="og:image" content="https://happybirthdaydeargift.vercel.app/image/logo.png">
+    <!-- <meta property="og:url" content="https://happybirthdaydeargift.vercel.app/?websiteId=686d4ef53c910ba1bee5ec5c"> -->
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GS Birthday Site 🎁">
+    <meta name="twitter:description"
+        content="A special birthday surprise! A beautiful interactive site with animations, music, and memories!">
+    <meta name="twitter:image" content="https://happybirthdaydeargift.vercel.app/image/birthday-gift.jpg">
+
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+
+    <canvas id="matrix-rain" style="display: none;"></canvas>
+    <canvas style="position:absolute;width:100%;height:100%;z-index:9999;display:none;" class="canvas"></canvas>
+    <div class="overlay">
+        <div class="stars-container" id="starsContainer"></div>
+        <img id="gift-image" src="happy.gif"
+            style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; max-width: 80%; max-height: 80%;" />
+        <div class="content-display" id="contentDisplay">
+            <p id="contentText"></p>
+        </div>
+        <div class="firework-container" id="fireworkContainer"></div>
+        <div class="book-container">
+            <div class="book" id="book"></div>
+        </div>
+
+        <button class="music-control" id="musicControl" title="Play/Pause Music">
+            ▶
+        </button>
+
+        <button class="settings-button" id="settingsButton" title="Settings">
+            ⚙
+        </button>
+
+        <!-- Settings hint element -->
+        <div id="settingsHint" class="settings-hint">
+            <div class="hint-text" data-i18n="settingsHint">ấn vào đây để setting theo ý muốn</div>
+        </div>
+
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 data-i18n="settings">⚙️ Website Settings</h2>
+                    <span class="close">×</span>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="settings-section">
+                        <h3 data-i18n="colorTheme">🎨 Choose Color Theme</h3>
+                        <div class="form-group">
+                            <div class="color-theme-buttons">
+                                <button type="button" class="color-theme-btn active" data-theme="pink">
+                                    <div class="color-preview pink-preview"></div>
+                                    <span data-i18n="pinkTheme">Sweet Pink</span>
+                                </button>
+                                <button type="button" class="color-theme-btn" data-theme="blue">
+                                    <div class="color-preview blue-preview"></div>
+                                    <span data-i18n="blueTheme">Cool Blue</span>
+                                </button>
+                                <button type="button" class="color-theme-btn" data-theme="purple">
+                                    <div class="color-preview purple-preview"></div>
+                                    <span data-i18n="purpleTheme">Dreamy Purple</span>
+                                </button>
+                                <button type="button" class="color-theme-btn" data-theme="custom">
+                                    <div class="color-preview custom-preview"></div>
+                                    <span data-i18n="customTheme">Custom Color</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-row" id="customColorSection" style="display: none;">
+                            <div class="form-group">
+                                <label for="matrixColor1" data-i18n="matrixColor1">Matrix color 1:</label>
+                                <input type="color" id="matrixColor1" value="#ff69b4">
+                            </div>
+                            <div class="form-group">
+                                <label for="matrixColor2" data-i18n="matrixColor2">Matrix color 2:</label>
+                                <input type="color" id="matrixColor2" value="#ff1493">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-p"
+                        style="margin-top: 20px; margin-bottom: 12px; background: #fff8e1; color: #b26a00; border-radius: 7px; padding: 10px 14px; font-size: 15px; box-shadow: 0 1px 6px rgba(0,0,0,0.04);">
+                        <div data-i18n="followNote" class="settings-p">
+                            💝 This special birthday website was lovingly created by WSM
+                        </div>
+                        <div class="settings-p" data-i18n="notVietnamWarning">
+                            🎉 Happy Birthday! Wishing you a wonderful day filled with joy and love! 💕
+                        </div>
+                    </div>
+                    <button id="applySettings" class="apply-settings-btn" data-i18n="apply">🎉 Apply Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <audio id="birthdayAudio" loop autoplay>
+            <source src="./music/zahra.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div class="copyright" data-i18n="copyright">
+            Made with 💕 for a Special Birthday
+        </div>
+
+        <div id="orientation-lock">
+            <div class="phone-icon">
+                <img src="./image/screen.png" alt="">
+            </div>
+        </div>
+
+        <!-- Fullscreen button for Android -->
+        <button id="fullscreenBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 990010; padding: 10px 18px; border-radius: 8px; border: none; background: #222; color: #fff; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: none;">
+            <img style="width: 20px; height: 20px; vertical-align: middle;" src="./image/full.png" alt="Fullscreen">
+        </button>
+        <script src="./lang.js"></script>
+        <script src="./jscp/settings.js"></script>
+        <script src="./jscp/main.js"></script>
+        <script src="./jscp/ui.js"></script>
+</body>
+
+</html>
