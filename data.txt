@@ -393,3 +393,4 @@ Commit at 2025-12-10T14:06:27.051542 - Add cake selection feature
 Commit at 2025-12-22T18:44:25.050531 - Add cake selection feature
 Commit at 2025-12-22T21:48:45.051542 - Update guest invitation form
 Commit at 2025-12-26T12:27:19.051542 - Add email notification feature
+Commit at 2025-12-26T14:55:36.051542 - Update color scheme
