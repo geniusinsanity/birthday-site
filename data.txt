@@ -1,0 +1,261 @@
+
+Commit at 2025-08-31T12:34:58.976155
+Commit at 2025-05-29T00:37:39.213530
+Commit at 2025-09-26T02:25:01.420906
+Commit at 2025-12-02T23:32:08.635215
+Commit at 2025-06-20T08:44:54.842798
+Commit at 2025-02-03T01:09:47.041719
+Commit at 2025-12-29T07:36:41.226299
+Commit at 2025-03-16T20:01:15.408619
+Commit at 2025-08-08T19:17:30.607301
+Commit at 2025-04-24T07:06:30.804150
+Commit at 2025-02-07T02:00:42.010599
+Commit at 2025-06-23T08:07:18.227481
+Commit at 2025-09-28T01:27:29.439699
+Commit at 2025-07-17T03:42:56.609066
+Commit at 2025-11-10T11:23:49.781799
+Commit at 2025-06-24T06:46:14.985649
+Commit at 2025-09-05T19:07:20.216855
+Commit at 2025-02-25T09:22:05.395952
+Commit at 2025-09-22T10:04:17.579487
+Commit at 2026-01-11T09:24:46.767563
+Commit at 2025-01-21T14:11:32.786848 - Minor UI tweaks
+Commit at 2025-01-21T21:16:08.786848 - Fix variable naming conventions
+Commit at 2025-01-22T13:33:12.786848 - Fix grading calculation bug
+Commit at 2025-01-27T21:52:26.786848 - Add comments to complex functions
+Commit at 2025-01-28T13:30:42.786848 - Remove unused imports in admin module
+Commit at 2025-01-29T16:21:15.786848 - Fix login screen overflow on small devices
+Commit at 2025-01-30T12:21:53.786296 - Update UI documentation
+Commit at 2025-01-30T15:08:27.786848 - Remove unused imports in admin module
+Commit at 2025-01-31T16:05:09.786848 - Improve error handling in network layer
+Commit at 2025-02-02T09:43:51.786848 - Refactor state management provider
+Commit at 2025-02-02T18:02:22.786848 - Add loading skeletons for lists
+Commit at 2025-02-03T13:47:09.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-02-05T09:16:33.786848 - Fix memory leak in report generation
+Commit at 2025-02-08T09:36:10.786848 - Add comments to complex functions
+Commit at 2025-02-09T09:54:18.786848 - Fix typo in README
+Commit at 2025-02-09T22:43:21.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-02-10T09:08:47.786848 - Update various dependencies
+Commit at 2025-02-15T16:00:10.786848 - Update build configuration
+Commit at 2025-02-17T16:52:12.786848 - Polish animation timings
+Commit at 2025-02-17T23:58:32.786848 - Update various dependencies
+Commit at 2025-02-19T10:21:01.786848 - Update various dependencies
+Commit at 2025-02-21T10:25:49.786848 - Add comments to complex functions
+Commit at 2025-02-25T11:42:09.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-02-25T13:07:31.786848 - Refactor student dashboard widgets
+Commit at 2025-02-25T21:19:41.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-02-27T09:54:29.786848 - Hotfix for notification service
+Commit at 2025-03-02T14:03:46.786848 - Fix typo in README
+Commit at 2025-03-03T20:52:32.786848 - Fix typo in README
+Commit at 2025-03-04T11:26:38.786848 - Update UI documentation
+Commit at 2025-03-04T18:22:16.786848 - Improve error handling in network layer
+Commit at 2025-03-05T17:08:57.786848 - Fix keyboard dismissal issue
+Commit at 2025-03-09T22:54:17.786848 - Add loading skeletons for lists
+Commit at 2025-03-11T12:12:05.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-03-13T12:56:59.786848 - Polish animation timings
+Commit at 2025-03-13T19:48:36.786848 - Refactor QR code generation logic
+Commit at 2025-03-17T10:57:50.786848 - Remove unused imports in admin module
+Commit at 2025-03-18T10:49:25.786848 - Fix variable naming conventions
+Commit at 2025-03-18T21:46:59.786848 - Update localization strings
+Commit at 2025-03-18T22:06:28.786848 - Minor UI tweaks
+Commit at 2025-03-19T16:54:56.786848 - Refactor student dashboard widgets
+Commit at 2025-03-21T17:56:56.786848 - Update API endpoints config
+Commit at 2025-03-22T18:24:09.786848 - Refactor student dashboard widgets
+Commit at 2025-03-25T21:05:36.786848 - Improve error handling in network layer
+Commit at 2025-03-27T12:22:40.786848 - Fix typo in README
+Commit at 2025-03-28T20:45:28.786848 - Fix variable naming conventions
+Commit at 2025-03-28T21:33:02.786848 - Fix variable naming conventions
+Commit at 2025-03-29T19:01:14.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-03-29T21:09:06.786848 - Improve error handling in network layer
+Commit at 2025-03-30T23:17:40.786848 - Add unit tests for auth service
+Commit at 2025-04-07T12:42:31.786848 - Refactor student dashboard widgets
+Commit at 2025-04-07T20:27:23.786848 - Improve startup performance
+Commit at 2025-04-08T11:44:47.786848 - Fix keyboard dismissal issue
+Commit at 2025-04-10T16:58:04.786848 - Improve startup performance
+Commit at 2025-04-11T12:01:25.786848 - Polish animation timings
+Commit at 2025-04-11T12:12:00.786848 - Update API endpoints config
+Commit at 2025-04-20T09:34:05.786848 - Update API endpoints config
+Commit at 2025-04-22T12:20:34.786848 - Fix grading calculation bug
+Commit at 2025-04-25T21:28:38.786848 - Fix login screen overflow on small devices
+Commit at 2025-04-28T17:31:27.786848 - Improve startup performance
+Commit at 2025-04-29T23:23:22.786848 - Remove unused imports in admin module
+Commit at 2025-05-01T14:35:50.786848 - Adjust color palette for better contrast
+Commit at 2025-05-03T18:21:38.786848 - Update API endpoints config
+Commit at 2025-05-03T22:59:25.786848 - Fix login screen overflow on small devices
+Commit at 2025-05-04T18:37:12.786848 - Add unit tests for auth service
+Commit at 2025-05-09T11:37:58.786848 - Minor UI tweaks
+Commit at 2025-05-12T12:24:01.786848 - Update build configuration
+Commit at 2025-05-17T14:15:49.786848 - Fix variable naming conventions
+Commit at 2025-05-18T16:28:01.786848 - Fix variable naming conventions
+Commit at 2025-05-18T20:46:37.786848 - Update assets
+Commit at 2025-05-23T13:09:22.786848 - Add unit tests for auth service
+Commit at 2025-05-28T09:14:03.786848 - Fix typo in README
+Commit at 2025-05-28T15:05:00.786848 - Minor UI tweaks
+Commit at 2025-05-30T18:06:48.786848 - Polish animation timings
+Commit at 2025-06-03T23:06:25.786848 - Update UI documentation
+Commit at 2025-06-04T10:36:22.786848 - Fix memory leak in report generation
+Commit at 2025-06-08T22:11:51.786848 - Minor UI tweaks
+Commit at 2025-06-16T12:19:01.786848 - Fix login screen overflow on small devices
+Commit at 2025-06-19T11:55:31.786848 - Fix grading calculation bug
+Commit at 2025-06-20T17:58:58.786848 - Update localization strings
+Commit at 2025-06-25T12:33:04.786848 - Remove unused imports in admin module
+Commit at 2025-06-30T17:05:41.786848 - Cleanup temporary files
+Commit at 2025-07-01T14:21:51.786848 - Fix login screen overflow on small devices
+Commit at 2025-07-01T18:25:13.786848 - Polish animation timings
+Commit at 2025-07-02T13:37:29.786848 - Update UI documentation
+Commit at 2025-07-03T18:10:32.786848 - Fix typo in README
+Commit at 2025-07-05T23:56:23.786848 - Cleanup temporary files
+Commit at 2025-07-06T17:32:49.786848 - Refactor QR code generation logic
+Commit at 2025-07-07T12:00:36.786848 - Add comments to complex functions
+Commit at 2025-07-10T18:57:40.786848 - Fix login screen overflow on small devices
+Commit at 2025-07-12T13:30:38.786848 - Refactor state management provider
+Commit at 2025-07-17T15:16:01.786848 - Adjust color palette for better contrast
+Commit at 2025-07-18T15:40:58.786848 - Refactor QR code generation logic
+Commit at 2025-07-21T17:01:53.786848 - Add comments to complex functions
+Commit at 2025-07-23T09:08:21.786848 - Add new icons for navigation
+Commit at 2025-07-24T12:01:21.786848 - Fix login screen overflow on small devices
+Commit at 2025-07-25T13:09:14.786848 - Improve startup performance
+Commit at 2025-07-26T12:20:09.786848 - Update various dependencies
+Commit at 2025-07-26T23:14:18.786848 - Hotfix for notification service
+Commit at 2025-07-28T14:13:33.786848 - Minor UI tweaks
+Commit at 2025-07-31T22:23:05.786848 - Improve startup performance
+Commit at 2025-08-01T09:50:14.786848 - Optimize backend queries for attendance
+Commit at 2025-08-03T23:35:33.786848 - Polish animation timings
+Commit at 2025-08-05T12:33:00.786848 - Fix keyboard dismissal issue
+Commit at 2025-08-06T13:16:13.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-08-06T23:34:45.786848 - Update localization strings
+Commit at 2025-08-07T21:42:22.786848 - Add loading skeletons for lists
+Commit at 2025-08-11T15:17:22.786848 - Update UI documentation
+Commit at 2025-08-16T09:09:41.786848 - Update API endpoints config
+Commit at 2025-08-17T15:55:15.786848 - Update API endpoints config
+Commit at 2025-08-18T16:28:19.786848 - Add unit tests for auth service
+Commit at 2025-08-22T17:01:58.786848 - Fix typo in README
+Commit at 2025-08-25T10:06:45.786848 - Add loading skeletons for lists
+Commit at 2025-08-25T21:54:22.786848 - Hotfix for notification service
+Commit at 2025-08-31T09:08:14.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-08-31T16:19:43.786848 - Minor UI tweaks
+Commit at 2025-08-31T21:22:29.786848 - Fix variable naming conventions
+Commit at 2025-09-01T12:15:36.786848 - Update various dependencies
+Commit at 2025-09-01T23:36:15.786848 - Refactor QR code generation logic
+Commit at 2025-09-04T13:32:32.786848 - Cleanup temporary files
+Commit at 2025-09-05T15:32:39.786848 - Adjust color palette for better contrast
+Commit at 2025-09-07T19:06:55.786848 - Fix memory leak in report generation
+Commit at 2025-09-08T16:02:08.786848 - Improve error handling in network layer
+Commit at 2025-09-10T20:32:15.786848 - Update UI documentation
+Commit at 2025-09-11T09:26:45.786848 - Fix login screen overflow on small devices
+Commit at 2025-09-11T14:19:48.786848 - Update assets
+Commit at 2025-09-15T16:49:13.786848 - Refactor QR code generation logic
+Commit at 2025-09-21T18:39:59.786848 - Update various dependencies
+Commit at 2025-09-23T20:22:11.786848 - Add loading skeletons for lists
+Commit at 2025-10-01T17:12:27.786848 - Minor UI tweaks
+Commit at 2025-10-01T23:39:44.786848 - Update assets
+Commit at 2025-10-03T11:33:31.786848 - Add new icons for navigation
+Commit at 2025-10-04T14:29:45.786848 - Add unit tests for auth service
+Commit at 2025-10-04T14:30:59.786848 - Optimize backend queries for attendance
+Commit at 2025-10-05T16:21:54.786848 - Fix variable naming conventions
+Commit at 2025-10-08T22:16:25.786848 - Update API endpoints config
+Commit at 2025-10-11T22:06:31.786848 - Update UI documentation
+Commit at 2025-10-16T13:41:55.786848 - Update UI documentation
+Commit at 2025-10-16T17:52:14.786848 - Optimize backend queries for attendance
+Commit at 2025-10-18T20:50:12.786848 - Update various dependencies
+Commit at 2025-10-19T11:51:41.786848 - Hotfix for notification service
+Commit at 2025-10-21T11:48:20.786848 - Fix keyboard dismissal issue
+Commit at 2025-10-25T11:22:51.786848 - Hotfix for notification service
+Commit at 2025-10-25T21:53:47.786848 - Update teacher dashboard layout
+Commit at 2025-10-26T13:27:13.786848 - Refactor student dashboard widgets
+Commit at 2025-10-26T17:48:31.786848 - Remove unused imports in admin module
+Commit at 2025-10-28T19:52:02.786848 - Add unit tests for auth service
+Commit at 2025-11-05T22:40:48.786848 - Polish animation timings
+Commit at 2025-11-08T14:20:23.786848 - Merge branch 'feature/new-ui' into main
+Commit at 2025-11-12T11:29:13.786848 - Add loading skeletons for lists
+Commit at 2025-11-12T12:20:28.786848 - Adjust color palette for better contrast
+Commit at 2025-11-12T22:56:28.786848 - Add comments to complex functions
+Commit at 2025-11-13T10:21:44.786848 - Remove unused imports in admin module
+Commit at 2025-11-13T18:38:18.786848 - Fix grading calculation bug
+Commit at 2025-11-15T22:15:08.786848 - Fix login screen overflow on small devices
+Commit at 2025-11-17T10:29:01.786848 - Fix login screen overflow on small devices
+Commit at 2025-11-17T15:54:11.786848 - Update assets
+Commit at 2025-11-19T09:56:46.786848 - Refactor student dashboard widgets
+Commit at 2025-11-19T10:54:24.786848 - Fix memory leak in report generation
+Commit at 2025-11-19T13:57:37.786848 - Fix variable naming conventions
+Commit at 2025-11-21T11:58:56.786848 - Add unit tests for auth service
+Commit at 2025-11-24T09:33:38.786848 - Optimize backend queries for attendance
+Commit at 2025-11-24T16:38:42.786848 - Add new icons for navigation
+Commit at 2025-11-28T17:15:38.786848 - Add loading skeletons for lists
+Commit at 2025-11-29T18:59:17.786848 - Add loading skeletons for lists
+Commit at 2025-11-29T23:40:02.786848 - Update localization strings
+Commit at 2025-12-01T15:24:19.786848 - Update UI documentation
+Commit at 2025-12-02T09:22:48.786848 - Update UI documentation
+Commit at 2025-12-02T18:04:56.786848 - Refactor student dashboard widgets
+Commit at 2025-12-03T12:55:53.786848 - Add loading skeletons for lists
+Commit at 2025-12-05T19:45:00.786848 - Refactor state management provider
+Commit at 2025-12-06T10:00:45.786848 - Optimize backend queries for attendance
+Commit at 2025-12-06T13:43:22.786848 - Update API endpoints config
+Commit at 2025-12-09T23:47:37.786848 - Update teacher dashboard layout
+Commit at 2025-12-10T10:33:24.786848 - Refactor QR code generation logic
+Commit at 2025-12-11T23:34:57.786848 - Improve startup performance
+Commit at 2025-12-12T09:16:55.786848 - Update localization strings
+Commit at 2025-12-12T13:00:39.786848 - Fix grading calculation bug
+Commit at 2025-12-12T20:01:51.786848 - Update build configuration
+Commit at 2025-12-13T23:17:25.786848 - Update localization strings
+Commit at 2025-12-14T12:34:07.786848 - Update various dependencies
+Commit at 2025-12-14T17:16:50.786848 - Refactor QR code generation logic
+Commit at 2025-12-15T13:02:16.786848 - Fix variable naming conventions
+Commit at 2025-12-26T09:17:37.786848 - Optimize backend queries for attendance
+Commit at 2025-12-26T14:07:00.786848 - Improve startup performance
+Commit at 2025-12-29T10:34:58.786848 - Add unit tests for auth service
+Commit at 2026-01-01T17:35:09.786848 - Update UI documentation
+Commit at 2026-01-02T16:31:54.786848 - Add new icons for navigation
+Commit at 2026-01-05T15:12:50.786848 - Refactor student dashboard widgets
+Commit at 2026-01-06T13:55:05.786848 - Add loading skeletons for lists
+Commit at 2026-01-07T14:16:47.786848 - Update teacher dashboard layout
+Commit at 2026-01-08T12:52:47.786848 - Cleanup temporary files
+Commit at 2026-01-08T15:20:03.786848 - Fix keyboard dismissal issue
+Commit at 2026-01-09T10:59:53.786848 - Add unit tests for auth service
+Commit at 2026-01-11T18:47:28.786848 - Refactor state management provider
+Commit at 2026-01-11T21:46:59.786848 - Fix typo in README
+Commit at 2026-01-13T15:19:50.786848 - Fix grading calculation bug
+Commit at 2026-01-13T16:28:37.786848 - Optimize backend queries for attendance
+Commit at 2026-01-17T14:56:28.786848 - Remove unused imports in admin module
+Commit at 2026-01-19T09:49:22.786848 - Fix login screen overflow on small devices
+Commit at 2026-01-20T23:19:15.786848 - Remove unused imports in admin module
+Commit at 2025-02-05T15:45:04.818641 - Remove unused imports in admin module
+Commit at 2025-02-24T09:00:22.818641 - Minor UI tweaks
+Commit at 2025-03-02T19:24:32.818641 - Update UI documentation
+Commit at 2025-03-04T11:18:50.818641 - Fix keyboard dismissal issue
+Commit at 2025-03-17T15:44:09.818641 - Merge branch 'feature/new-ui' into main
+Commit at 2025-04-04T23:45:35.818641 - Minor UI tweaks
+Commit at 2025-04-09T12:13:45.818641 - Refactor state management provider
+Commit at 2025-04-15T14:46:25.818641 - Add new icons for navigation
+Commit at 2025-05-27T16:10:14.818641 - Fix memory leak in report generation
+Commit at 2025-06-19T17:18:44.818641 - Fix login screen overflow on small devices
+Commit at 2025-07-20T18:02:21.818641 - Cleanup temporary files
+Commit at 2025-08-19T21:22:47.817627 - Update teacher dashboard layout
+Commit at 2025-08-31T09:35:08.818641 - Fix login screen overflow on small devices
+Commit at 2025-09-05T16:50:00.818641 - Improve error handling in network layer
+Commit at 2025-10-10T18:48:18.818641 - Add new icons for navigation
+Commit at 2025-10-16T16:20:53.818641 - Fix memory leak in report generation
+Commit at 2025-10-17T23:22:55.818641 - Fix login screen overflow on small devices
+Commit at 2025-10-23T17:00:19.818641 - Hotfix for notification service
+Commit at 2025-12-07T13:27:03.818641 - Add loading skeletons for lists
+Commit at 2025-12-28T17:56:52.818641 - Fix memory leak in report generation
+Commit at 2025-01-22T15:43:27.565967 - Add new icons for navigation
+Commit at 2025-01-24T16:51:35.564965 - Update UI documentation
+Commit at 2025-02-27T12:18:42.564965 - Improve startup performance
+Commit at 2025-04-16T12:40:41.565967 - Fix login screen overflow on small devices
+Commit at 2025-05-07T17:52:41.565967 - Fix variable naming conventions
+Commit at 2025-06-13T12:06:56.564965 - Hotfix for notification service
+Commit at 2025-08-29T14:07:52.564965 - Fix memory leak in report generation
+Commit at 2025-08-31T16:56:49.565967 - Fix grading calculation bug
+Commit at 2025-09-04T14:11:28.565967 - Add comments to complex functions
+Commit at 2025-09-05T13:20:28.564965 - Update build configuration
+Commit at 2025-09-18T10:48:49.565967 - Fix login screen overflow on small devices
+Commit at 2025-09-20T09:20:05.564965 - Minor UI tweaks
+Commit at 2025-09-29T16:39:19.565967 - Update localization strings
+Commit at 2025-10-02T17:51:33.564965 - Update API endpoints config
+Commit at 2025-10-08T16:03:11.564965 - Minor UI tweaks
+Commit at 2025-10-10T09:37:09.564965 - Add comments to complex functions
+Commit at 2025-10-26T09:06:43.565967 - Hotfix for notification service
+Commit at 2025-11-02T17:31:13.565967 - Hotfix for notification service
+Commit at 2025-11-08T16:41:48.565967 - Improve error handling in network layer
+Commit at 2025-12-23T13:28:06.564965 - Adjust color palette for better contrast

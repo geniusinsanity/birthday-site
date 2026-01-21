@@ -4,7 +4,7 @@ const closeModal = document.querySelector('.close');
 let pages = [];
 const applySettingsButton = document.getElementById('applySettings');
 let settings = {
-    music: './music/zahra.mp3',
+    music: './music/this december.mp3',
     countdown: 3,
     matrixText: 'HAPPYBIRTHDAY',
     matrixColor1: '#ff69b4', // Pink color
