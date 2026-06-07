@@ -3,8 +3,8 @@
 
 const translations = {
     en: {
-        title: "Happy Birthday Zahra 🎁",
-        description: "A special birthday surprise for Zahra! Click to see the special message!",
+        title: "Happy Birthday Kimmy 🎁",
+        description: "A special birthday surprise for Kimmy! Click to see the special message!",
         login: "Sign in with Google",
         logout: "Logout",
         settings: "Website Settings",
@@ -25,9 +25,9 @@ const translations = {
         book: "Book Page Settings",
         enableHeart: "Show heart effect:",
         note: "⏳ Enjoy this special birthday website!",
-        follow: "💝 This special birthday website was lovingly created by WSM",
+        follow: "💝 This special birthday website was lovingly created by Kimmyauw",
         apply: "Apply Settings",
-        copyright: 'Made with 💕 by WSM for Zahra\'s Birthday',
+        copyright: 'Made with 💕 by Kimmyauw for Kimmy\'s Birthday',
         fullscreen: "Fullscreen",
         on: "On",
         off: "Off",
@@ -44,7 +44,7 @@ const translations = {
         noteSequence: "Note: Please separate words with | and don't make a line too long",
         noteExpire: "⏳ <b>Note:</b> Enjoy this special birthday surprise! 🎉",
         followNote: "💝 This special birthday website was lovingly created by WSM",
-        notVietnamWarning: '🎉 Happy Birthday Zahra! Wishing you a wonderful day filled with joy and love! 💕',
+        notVietnamWarning: '🎉 Happy Birthday Kimmy! Wishing you a wonderful day filled with joy and love! 💕',
         pageTitleCover: "Page {num} (Cover)",
         pageTitle: "Page {num}",
         imageLabel: "Image:",
