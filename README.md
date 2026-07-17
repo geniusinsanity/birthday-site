@@ -99,7 +99,7 @@ Edit `lang.js` to change the text content:
 ```javascript
 const translations = {
     en: { /* English messages */ },
-    vi: { /* Vietnamese messages */ }
+    fr: { /* french messages */ }
 }
 ```
 
