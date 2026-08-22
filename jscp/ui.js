@@ -9,6 +9,11 @@ let typewriterTimeout = null;
 let photoUrls = [];
 let maxHeartPhotos = 14;
 let heartPhotosCreated = 0;
+let isSequenceRunning = false;
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // ==========================================
 // 1. Matrix Rain Background Effect
@@ -35,15 +40,15 @@ function initMatrixRain() {
     };
 
     const chars = (currentSettings.matrixText || "HAPPYBIRTHDAY").split("");
-    const maxLength = Math.floor(matrixCanvas.height / fontSize) + 3;
+    const maxLength = Math.floor(matrixCanvas.height / fontSize) + 4;
 
     for (let x = 0; x < columns; x++) {
         drops[x] = 0;
-        delays[x] = Math.random() * 1500;
+        delays[x] = Math.random() * 1200;
         started[x] = false;
     }
 
-    let startTime = Date.now();
+    const startTime = Date.now();
 
     if (matrixInterval) clearInterval(matrixInterval);
 
@@ -76,7 +81,7 @@ function initMatrixRain() {
 
             if (drops[i] >= maxLength) {
                 drops[i] = 0;
-                delays[i] = Math.random() * 1000;
+                delays[i] = Math.random() * 800;
                 started[i] = false;
             }
         }
@@ -145,9 +150,9 @@ S.Drawing = (function () {
 S.Point = function (args) {
     this.x = args.x;
     this.y = args.y;
-    this.z = args.z;
-    this.a = args.a;
-    this.h = args.h;
+    this.z = args.z || 3;
+    this.a = args.a !== undefined ? args.a : 1;
+    this.h = args.h || 0;
 };
 
 S.Color = function (r, g, b, a) {
@@ -169,10 +174,10 @@ S.Dot = function (x, y) {
         a: 1,
         h: 0
     });
-    this.e = 0.08;
+    this.e = 0.1;
     this.s = true;
     const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
-    const rgb = hexToRgb(currentSettings.sequenceColor);
+    const rgb = hexToRgb(currentSettings.sequenceColor || '#ff69b4');
     this.c = new S.Color(rgb.r, rgb.g, rgb.b, this.p.a);
     this.t = new S.Point({ x: x, y: y, z: this.p.z, a: 1, h: 0 });
     this.q = [];
@@ -181,7 +186,7 @@ S.Dot = function (x, y) {
 S.Dot.prototype = {
     _draw: function () {
         const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
-        const rgb = hexToRgb(currentSettings.sequenceColor);
+        const rgb = hexToRgb(currentSettings.sequenceColor || '#ff69b4');
         this.c.r = rgb.r;
         this.c.g = rgb.g;
         this.c.b = rgb.b;
@@ -194,18 +199,11 @@ S.Dot.prototype = {
         const d = Math.sqrt(dx * dx + dy * dy);
         const e = this.e * d;
 
-        if (this.p.h === -1) {
-            this.p.x = n.x;
-            this.p.y = n.y;
-            return true;
-        }
-
         if (d > 1) {
             this.p.x -= (dx / d) * e;
             this.p.y -= (dy / d) * e;
         } else {
-            if (this.p.h > 0) this.p.h--;
-            else return true;
+            return true;
         }
         return false;
     },
@@ -213,21 +211,13 @@ S.Dot.prototype = {
         if (this._moveTowards(this.t)) {
             const p = this.q.shift();
             if (p) {
-                this.t.x = p.x || this.p.x;
-                this.t.y = p.y || this.p.y;
-                this.t.z = p.z || this.p.z;
-                this.t.a = p.a || this.p.a;
-                this.p.h = p.h || 0;
-            } else {
-                if (this.s) {
-                    this.p.x -= Math.sin(Math.random() * 1.5);
-                    this.p.y -= Math.sin(Math.random() * 1.5);
-                } else {
-                    this.move(new S.Point({
-                        x: this.p.x + (Math.random() * 40) - 20,
-                        y: this.p.y + (Math.random() * 40) - 20
-                    }));
-                }
+                this.t.x = p.x !== undefined ? p.x : this.p.x;
+                this.t.y = p.y !== undefined ? p.y : this.p.y;
+                this.t.z = p.z !== undefined ? p.z : this.p.z;
+                this.t.a = p.a !== undefined ? p.a : this.p.a;
+            } else if (!this.s) {
+                this.p.x += (Math.random() - 0.5) * 1.5;
+                this.p.y += (Math.random() - 0.5) * 1.5;
             }
         }
     },
@@ -243,231 +233,167 @@ S.Dot.prototype = {
 S.ShapeBuilder = (function () {
     const shapeCanvas = document.createElement('canvas');
     const shapeContext = shapeCanvas.getContext('2d');
-    const baseFontSize = 500;
+    const baseFontSize = 450;
     const fontFamily = 'Plus Jakarta Sans, sans-serif';
 
     function getGap() {
-        return window.innerWidth < 768 ? 5 : 7;
+        return window.innerWidth < 768 ? 4 : 6;
     }
-
-    function fit() {
-        const gap = getGap();
-        shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
-        shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
-        shapeContext.fillStyle = '#ff69b4';
-        shapeContext.textBaseline = 'middle';
-        shapeContext.textAlign = 'center';
-    }
-
-    function processCanvas() {
-        const gap = getGap();
-        const pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
-        const dots = [];
-        let x = 0, y = 0, fx = shapeCanvas.width, fy = shapeCanvas.height, w = 0, h = 0;
-
-        for (let p = 0; p < pixels.length; p += (4 * gap)) {
-            if (pixels[p + 3] > 64) {
-                dots.push(new S.Point({ x: x, y: y }));
-                w = x > w ? x : w;
-                h = y > h ? y : h;
-                fx = x < fx ? x : fx;
-                fy = y < fy ? y : fy;
-            }
-            x += gap;
-            if (x >= shapeCanvas.width) {
-                x = 0;
-                y += gap;
-                p += gap * 4 * shapeCanvas.width;
-            }
-        }
-        return { dots: dots, w: w + fx, h: h + fy };
-    }
-
-    function setFontSize(s) {
-        shapeContext.font = `bold ${s}px ${fontFamily}`;
-    }
-
-    function init() {
-        fit();
-        window.addEventListener('resize', fit);
-    }
-    init();
 
     return {
         letter: function (l) {
-            fit();
-            setFontSize(baseFontSize);
-            const textMetrics = shapeContext.measureText(l);
-            const textWidth = textMetrics.width || 100;
-            const isLandscape = window.innerWidth > window.innerHeight;
+            const gap = getGap();
+            const w = Math.max(window.innerWidth, 400);
+            const h = Math.max(window.innerHeight, 400);
 
-            const s = Math.min(
-                baseFontSize,
-                (shapeCanvas.width / textWidth) * 0.85 * baseFontSize,
-                (shapeCanvas.height / baseFontSize) * (isLandscape ? 0.7 : 0.4) * baseFontSize
-            );
+            shapeCanvas.width = w;
+            shapeCanvas.height = h;
 
-            setFontSize(s);
-            shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
-            shapeContext.fillText(l, shapeCanvas.width / 2, shapeCanvas.height / 2);
-            return processCanvas();
+            let fontSize = baseFontSize;
+            shapeContext.font = `bold ${fontSize}px ${fontFamily}`;
+            const textWidth = shapeContext.measureText(l).width || 100;
+            const maxWidth = w * 0.85;
+            const isLandscape = w > h;
+            const maxHeight = h * (isLandscape ? 0.65 : 0.4);
+
+            fontSize = Math.min(baseFontSize, (maxWidth / textWidth) * baseFontSize, maxHeight);
+            shapeContext.font = `bold ${fontSize}px ${fontFamily}`;
+            shapeContext.fillStyle = '#ff69b4';
+            shapeContext.textBaseline = 'middle';
+            shapeContext.textAlign = 'center';
+            shapeContext.clearRect(0, 0, w, h);
+            shapeContext.fillText(l, w / 2, h / 2);
+
+            const pixels = shapeContext.getImageData(0, 0, w, h).data;
+            const dots = [];
+            let minX = w, maxX = 0, minY = h, maxY = 0;
+
+            for (let y = 0; y < h; y += gap) {
+                for (let x = 0; x < w; x += gap) {
+                    const idx = (y * w + x) * 4;
+                    if (pixels[idx + 3] > 60) {
+                        dots.push(new S.Point({ x, y }));
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                    }
+                }
+            }
+
+            const boundsW = maxX > minX ? maxX - minX : w;
+            const boundsH = maxY > minY ? maxY - minY : h;
+
+            return {
+                dots: dots,
+                w: boundsW,
+                h: boundsH,
+                centerX: (minX + maxX) / 2,
+                centerY: (minY + maxY) / 2
+            };
         }
     };
 }());
 
 S.Shape = (function () {
     let dots = [];
-    let width = 0, height = 0, cx = 0, cy = 0;
-
-    function compensate() {
-        const a = S.Drawing.getArea();
-        cx = a.w / 2 - width / 2;
-        cy = a.h / 2 - height / 2;
-    }
 
     return {
         switchShape: function (n, fast) {
             const a = S.Drawing.getArea();
-            width = n.w;
-            height = n.h;
-            compensate();
+            const targetDots = n.dots || [];
 
-            if (n.dots.length > dots.length) {
-                const diff = n.dots.length - dots.length;
-                for (let d = 0; d < diff; d++) {
-                    dots.push(new S.Dot(a.w / 2, a.h / 2));
-                }
+            while (dots.length < targetDots.length) {
+                dots.push(new S.Dot(a.w / 2, a.h / 2));
             }
 
-            let d = 0;
-            while (n.dots.length > 0) {
-                const i = Math.floor(Math.random() * n.dots.length);
-                dots[d].e = fast ? 0.22 : 0.12;
-                dots[d].s = true;
-                dots[d].move(new S.Point({
-                    x: n.dots[i].x + cx,
-                    y: n.dots[i].y + cy,
+            const offsetX = a.w / 2 - (n.centerX || a.w / 2);
+            const offsetY = a.h / 2 - (n.centerY || a.h / 2);
+
+            for (let i = 0; i < targetDots.length; i++) {
+                dots[i].e = fast ? 0.25 : 0.12;
+                dots[i].s = true;
+                dots[i].move(new S.Point({
+                    x: targetDots[i].x + offsetX,
+                    y: targetDots[i].y + offsetY,
+                    z: window.innerWidth < 768 ? 2.5 : 3.6,
                     a: 1,
-                    z: window.innerWidth < 768 ? 2.5 : 3.8,
                     h: 0
                 }));
-                n.dots.splice(i, 1);
-                d++;
             }
 
-            for (let i = d; i < dots.length; i++) {
+            for (let i = targetDots.length; i < dots.length; i++) {
                 dots[i].s = false;
+                dots[i].e = 0.04;
                 dots[i].move(new S.Point({
                     x: Math.random() * a.w,
                     y: Math.random() * a.h,
-                    a: 0.1,
                     z: 1,
+                    a: 0.1,
                     h: 0
                 }));
             }
         },
         render: function () {
-            for (let d = 0; d < dots.length; d++) {
-                dots[d].render();
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].render();
             }
         }
     };
 }());
 
 S.UI = (function () {
-    let interval = null;
-    let sequence = [];
-    const cmd = '#';
+    let currentSequenceToken = 0;
 
-    function getAction(value) {
-        return value && value.startsWith(cmd) && value.substring(1).split(' ')[0];
-    }
+    async function runSequence(actionStr, token) {
+        const items = typeof actionStr === 'object' ? actionStr : actionStr.split('|').filter(s => s.trim() !== '');
 
-    function getValue(value) {
-        return value && value.split(' ')[1];
-    }
+        for (let item of items) {
+            if (token !== currentSequenceToken) return;
+            const str = item.trim();
 
-    function timedAction(fn, delay, max, reverse) {
-        clearInterval(interval);
-        let currentAction = reverse ? max : 1;
-        fn(currentAction);
-
-        if (!max || (!reverse && currentAction < max) || (reverse && currentAction > 0)) {
-            interval = setInterval(function () {
-                currentAction = reverse ? currentAction - 1 : currentAction + 1;
-                fn(currentAction);
-                if ((!reverse && max && currentAction === max) || (reverse && currentAction === 0)) {
-                    clearInterval(interval);
+            if (str.startsWith('#countdown')) {
+                const count = parseInt(str.split(' ')[1]) || 3;
+                for (let c = count; c >= 1; c--) {
+                    if (token !== currentSequenceToken) return;
+                    S.Shape.switchShape(S.ShapeBuilder.letter(c.toString()), true);
+                    await sleep(1100);
                 }
-            }, delay);
-        }
-    }
+            } else if (str.startsWith('#gift')) {
+                if (token !== currentSequenceToken) return;
+                showStars();
+                showFloatingHearts();
+                await sleep(800);
+                const canvas = document.querySelector('.canvas');
+                const matrixCanvas = document.getElementById('matrix-rain');
+                if (canvas) canvas.style.display = 'none';
+                if (matrixCanvas) matrixCanvas.style.opacity = '0.35';
 
-    function performAction(value) {
-        sequence = typeof value === 'object' ? value : sequence.concat(value.split('|').filter(s => s.trim() !== ''));
-
-        function getDynamicDelay(str) {
-            const isMobile = window.innerWidth < 768;
-            const base = isMobile ? 1800 : 2000;
-            if (!str || str.startsWith(cmd)) return base;
-            return base + Math.max(0, (str.length - 4) * 120);
-        }
-
-        timedAction(function () {
-            if (sequence.length === 0) return;
-            const current = sequence.shift();
-            const action = getAction(current);
-            const val = getValue(current);
-
-            switch (action) {
-                case 'countdown':
-                    const countVal = parseInt(val) || 3;
-                    timedAction(function (index) {
-                        if (index === 0) {
-                            if (sequence.length > 0) {
-                                performAction(sequence);
-                            }
-                        } else {
-                            S.Shape.switchShape(S.ShapeBuilder.letter(index.toString()), true);
-                        }
-                    }, 1200, countVal, true);
-                    break;
-
-                case 'gift':
-                    const currentSettings = window.settings || {};
-                    showStars();
-                    showFloatingHearts();
-
-                    setTimeout(() => {
-                        const canvas = document.querySelector('.canvas');
-                        const matrixCanvas = document.getElementById('matrix-rain');
-                        if (canvas) canvas.style.display = 'none';
-                        if (matrixCanvas) matrixCanvas.style.opacity = '0.35';
-
-                        if (currentSettings.enableBook !== false) {
-                            showBook();
-                        } else if (currentSettings.enableHeart !== false) {
-                            startHeartEffect();
-                        } else if (typeof initTimeline === 'function') {
-                            initTimeline();
-                        }
-                    }, 1000);
-                    break;
-
-                default:
-                    S.Shape.switchShape(S.ShapeBuilder.letter(current));
-                    break;
+                const currentSettings = window.settings || {};
+                if (currentSettings.enableBook !== false) {
+                    showBook();
+                } else if (currentSettings.enableHeart !== false) {
+                    startHeartEffect();
+                } else if (typeof initTimeline === 'function') {
+                    initTimeline();
+                }
+            } else {
+                if (token !== currentSequenceToken) return;
+                S.Shape.switchShape(S.ShapeBuilder.letter(str));
+                const delay = Math.max(1800, 1700 + (str.length - 4) * 110);
+                await sleep(delay);
             }
-        }, getDynamicDelay(sequence[0]), sequence.length);
+        }
     }
 
     return {
         simulate: function (action) {
-            performAction(action);
+            currentSequenceToken++;
+            const token = currentSequenceToken;
+            runSequence(action, token);
         },
         reset: function (destroy) {
-            clearInterval(interval);
-            sequence = [];
+            currentSequenceToken++;
             if (destroy && S.Shape) {
                 S.Shape.switchShape(S.ShapeBuilder.letter(''));
             }
@@ -494,7 +420,6 @@ function createPages() {
         const frontIdx = i * 2;
         const backIdx = frontIdx + 1;
 
-        // Front Face
         const front = document.createElement('div');
         front.className = 'page-front';
         if (currentPages[frontIdx]) {
@@ -503,7 +428,6 @@ function createPages() {
             front.appendChild(img);
         }
 
-        // Back Face
         const back = document.createElement('div');
         back.className = 'page-back';
         if (currentPages[backIdx]) {
@@ -516,7 +440,6 @@ function createPages() {
         pageEl.appendChild(back);
         book.appendChild(pageEl);
 
-        // Click to flip page
         pageEl.addEventListener('click', (e) => {
             if (isFlipping) return;
             const rect = pageEl.getBoundingClientRect();
