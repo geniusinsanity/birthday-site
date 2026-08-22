@@ -1,5 +1,4 @@
-// UI & Core Animation Engine for Birthday Celebration Site
-// Enhanced with portfolio-grade glassmorphism, responsive controls, and fluid transitions
+// Core UI & Animation Engine for Romantic Birthday Website
 
 let matrixInterval = null;
 let matrixChars = "HAPPYBIRTHDAY".split("");
@@ -12,48 +11,7 @@ let maxHeartPhotos = 14;
 let heartPhotosCreated = 0;
 
 // ==========================================
-// 1. Interactive Cursor Bubble (Portfolio Style)
-// ==========================================
-function initCursorBubble() {
-    const cursor = document.getElementById('cursorBubble');
-    if (!cursor) return;
-
-    let mouseX = window.innerWidth / 2;
-    let mouseY = window.innerHeight / 2;
-    let cursorX = mouseX;
-    let cursorY = mouseY;
-
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-
-    function renderCursor() {
-        cursorX += (mouseX - cursorX) * 0.15;
-        cursorY += (mouseY - cursorY) * 0.15;
-        cursor.style.left = `${cursorX}px`;
-        cursor.style.top = `${cursorY}px`;
-        requestAnimationFrame(renderCursor);
-    }
-    requestAnimationFrame(renderCursor);
-
-    // Hover scale effects
-    const interactiveElements = 'button, a, input, select, textarea, .page, .glass-btn, .timeline-content, #gift-image';
-    document.addEventListener('mouseover', (e) => {
-        if (e.target.closest(interactiveElements)) {
-            cursor.classList.add('hovering');
-        }
-    });
-
-    document.addEventListener('mouseout', (e) => {
-        if (e.target.closest(interactiveElements)) {
-            cursor.classList.remove('hovering');
-        }
-    });
-}
-
-// ==========================================
-// 2. Matrix Rain Background Effect
+// 1. Matrix Rain Background Effect
 // ==========================================
 function initMatrixRain() {
     const canvas = document.getElementById('matrix-rain');
@@ -90,7 +48,7 @@ function initMatrixRain() {
     if (matrixInterval) clearInterval(matrixInterval);
 
     function drawMatrixRain() {
-        ctx.fillStyle = 'rgba(7, 3, 12, 0.08)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.font = `bold ${fontSize}px Menlo, Consolas, monospace`;
 
@@ -102,14 +60,14 @@ function initMatrixRain() {
             }
 
             if (started[i] && drops[i] < maxLength) {
-                const char = chars[Math.floor(Math.random() * chars.length)] || '✨';
+                const char = chars[Math.floor(Math.random() * chars.length)] || '❤';
                 const x = i * fontSize;
                 const y = drops[i] * fontSize;
                 const color = i % 2 === 0 ? currentSettings.matrixColor1 : currentSettings.matrixColor2;
 
                 ctx.fillStyle = color;
                 ctx.shadowColor = color;
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 8;
                 ctx.fillText(char, x, y);
                 ctx.shadowBlur = 0;
             }
@@ -128,7 +86,7 @@ function initMatrixRain() {
 }
 
 // ==========================================
-// 3. Particle Morphing Engine (S.js)
+// 2. Particle Morphing Engine (S.js)
 // ==========================================
 const S = {
     initialized: false,
@@ -217,9 +175,9 @@ S.UI = (function () {
 
         function getDynamicDelay(str) {
             const isMobile = window.innerWidth < 768;
-            const base = isMobile ? 1800 : 2000;
+            const base = isMobile ? 1700 : 1900;
             if (!str || str.startsWith(cmd)) return base;
-            return base + Math.max(0, (str.length - 4) * 120);
+            return base + Math.max(0, (str.length - 4) * 100);
         }
 
         timedAction(function () {
@@ -243,7 +201,6 @@ S.UI = (function () {
                     break;
 
                 case 'gift':
-                    // Complete morphing sequence -> transition to 3D Book or Constellation
                     const currentSettings = window.settings || {};
                     showStars();
                     showFloatingHearts();
@@ -252,7 +209,7 @@ S.UI = (function () {
                         const canvas = document.querySelector('.canvas');
                         const matrixCanvas = document.getElementById('matrix-rain');
                         if (canvas) canvas.style.display = 'none';
-                        if (matrixCanvas) matrixCanvas.style.opacity = '0.3';
+                        if (matrixCanvas) matrixCanvas.style.opacity = '0.35';
 
                         if (currentSettings.enableBook !== false) {
                             showBook();
@@ -308,7 +265,7 @@ S.Dot = function (x, y) {
     this.p = new S.Point({
         x: x,
         y: y,
-        z: window.innerWidth < 768 ? 2.5 : 4.5,
+        z: window.innerWidth < 768 ? 2.5 : 4.0,
         a: 1,
         h: 0
     });
@@ -378,12 +335,12 @@ S.ShapeBuilder = (function () {
     const shapeCanvas = document.createElement('canvas');
     const shapeContext = shapeCanvas.getContext('2d');
     const fontSize = 500;
-    const fontFamily = 'Plus Jakarta Sans, Syne, sans-serif';
+    const fontFamily = 'Plus Jakarta Sans, Pacifico, sans-serif';
 
     function processCanvas() {
         const pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
         const dots = [];
-        const gap = window.innerWidth < 768 ? 6 : 8;
+        const gap = window.innerWidth < 768 ? 6 : 7;
 
         for (let x = 0; x < shapeCanvas.width; x += gap) {
             for (let y = 0; y < shapeCanvas.height; y += gap) {
@@ -405,8 +362,8 @@ S.ShapeBuilder = (function () {
             setFontSize(fontSize);
             const s = Math.min(
                 fontSize,
-                (shapeCanvas.width / shapeContext.measureText(l).width) * 0.8 * fontSize,
-                (shapeCanvas.height / fontSize) * (isLandscape() ? 0.8 : 0.45) * fontSize
+                (shapeCanvas.width / shapeContext.measureText(l).width) * 0.85 * fontSize,
+                (shapeCanvas.height / fontSize) * (window.innerWidth > window.innerHeight ? 0.75 : 0.45) * fontSize
             );
             setFontSize(s);
 
@@ -460,12 +417,8 @@ S.Shape = (function () {
     };
 }());
 
-function isLandscape() {
-    return window.innerWidth > window.innerHeight;
-}
-
 // ==========================================
-// 4. 3D Photo Album (Book) Engine
+// 3. 3D Photo Album (Book) Engine
 // ==========================================
 function createPages() {
     const book = document.getElementById('book');
@@ -483,7 +436,7 @@ function createPages() {
         const frontIdx = i * 2;
         const backIdx = frontIdx + 1;
 
-        // Front face
+        // Front Face
         const front = document.createElement('div');
         front.className = 'page-front';
         if (currentPages[frontIdx]) {
@@ -492,7 +445,7 @@ function createPages() {
             front.appendChild(img);
         }
 
-        // Back face
+        // Back Face
         const back = document.createElement('div');
         back.className = 'page-back';
         if (currentPages[backIdx]) {
@@ -505,7 +458,7 @@ function createPages() {
         pageEl.appendChild(back);
         book.appendChild(pageEl);
 
-        // Click to flip
+        // Click to flip page
         pageEl.addEventListener('click', (e) => {
             if (isFlipping) return;
             const rect = pageEl.getBoundingClientRect();
@@ -519,7 +472,6 @@ function createPages() {
     }
 
     updatePageZIndexes();
-    updatePageBadge();
     photoUrls = currentPages.map(p => p.image).filter(Boolean);
 }
 
@@ -530,14 +482,6 @@ function updatePageZIndexes() {
         p.style.setProperty('--page-z-index', (total - idx).toString());
         p.style.setProperty('--page-flipped-z-index', (idx + 1).toString());
     });
-}
-
-function updatePageBadge() {
-    const badge = document.getElementById('pageBadge');
-    const totalPhysicalPages = Math.ceil(((window.settings && window.settings.pages) || []).length / 2);
-    if (badge) {
-        badge.textContent = `${currentPage + 1} / ${totalPhysicalPages || 1}`;
-    }
 }
 
 function showBook() {
@@ -571,7 +515,6 @@ function nextPage() {
         if (pageToFlip) {
             pageToFlip.classList.add('flipped');
             currentPage++;
-            updatePageBadge();
             showPageContent();
             setTimeout(() => {
                 isFlipping = false;
@@ -591,7 +534,6 @@ function prevPage() {
         const pageToFlip = allPages[currentPage];
         if (pageToFlip) {
             pageToFlip.classList.remove('flipped');
-            updatePageBadge();
             showPageContent();
             setTimeout(() => {
                 isFlipping = false;
@@ -606,7 +548,7 @@ function onBookFinished() {
     setTimeout(() => {
         hideBook();
         startHeartEffect();
-    }, 1200);
+    }, 1000);
 }
 
 function showPageContent() {
@@ -639,7 +581,7 @@ function typewriterEffect(element, text, speed = 30) {
     type();
 }
 
-// Touch swipe support for Book
+// Touch swipe support & keyboard
 function setupBookGestures() {
     const book = document.getElementById('book');
     if (!book) return;
@@ -658,29 +600,14 @@ function setupBookGestures() {
         }
     }, { passive: true });
 
-    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight' || e.key === ' ') nextPage();
         if (e.key === 'ArrowLeft') prevPage();
     });
-
-    // Book Navigation Buttons
-    const prevBtn = document.getElementById('bookPrevBtn');
-    const nextBtn = document.getElementById('bookNextBtn');
-    const skipBtn = document.getElementById('skipBookBtn');
-
-    if (prevBtn) prevBtn.onclick = prevPage;
-    if (nextBtn) nextBtn.onclick = nextPage;
-    if (skipBtn) {
-        skipBtn.onclick = () => {
-            hideBook();
-            startHeartEffect();
-        };
-    }
 }
 
 // ==========================================
-// 5. Heart Constellation & Photo Orbit
+// 4. Heart Constellation & Fireworks
 // ==========================================
 function startHeartEffect() {
     const currentSettings = window.settings || {};
@@ -848,12 +775,11 @@ function showStars() {
 }
 
 // ==========================================
-// 6. Audio Player & Fullscreen Handlers
+// 5. Audio & Controls Setup
 // ==========================================
 function setupAudioAndControls() {
     const musicControl = document.getElementById('musicControl');
     const audio = document.getElementById('birthdayAudio');
-    const toast = document.getElementById('audioNoticeToast');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     if (!audio) return;
@@ -864,16 +790,9 @@ function setupAudioAndControls() {
             if (musicControl) {
                 musicControl.innerHTML = '⏸';
                 musicControl.classList.add('playing');
-                musicControl.title = t('pauseMusic');
-            }
-            if (toast) {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 600);
             }
             if (typeof initVisualizer === 'function') initVisualizer();
-        }).catch(err => {
-            console.log('Audio autoplay prevented, awaiting user interaction');
-        });
+        }).catch(() => {});
     }
 
     function toggleAudio() {
@@ -884,19 +803,16 @@ function setupAudioAndControls() {
             if (musicControl) {
                 musicControl.innerHTML = '▶';
                 musicControl.classList.remove('playing');
-                musicControl.title = t('playMusic');
             }
         }
     }
 
     if (musicControl) musicControl.onclick = toggleAudio;
 
-    // First interaction triggers music
     document.addEventListener('click', () => {
         if (audio.paused) playAudio();
     }, { once: true });
 
-    // Fullscreen Toggle
     if (fullscreenBtn) {
         fullscreenBtn.onclick = () => {
             if (!document.fullscreenElement) {
@@ -909,20 +825,17 @@ function setupAudioAndControls() {
 }
 
 // ==========================================
-// 7. Initialization Lifecycle
+// 6. Init
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    initCursorBubble();
     showStars();
     initMatrixRain();
     setupBookGestures();
     setupAudioAndControls();
 
-    // Start particle engine
     S.init();
     applyLoadedSettings();
 
-    // Resize handling
     window.addEventListener('resize', () => {
         clearTimeout(window.resizeDebounce);
         window.resizeDebounce = setTimeout(() => {

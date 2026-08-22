@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title data-i18n="title">Happy Birthday Zahra 🎂✨</title>
-    <meta name="description" content="A special birthday surprise! A beautiful interactive site with animations, music, memories, 3D cake, and mini-games!">
+    <title data-i18n="title">Happy Birthday Zahra 🎁</title>
+    <meta name="description" content="A special birthday surprise! A beautiful interactive site with animations, music, memories, and 3D cake!">
 
     <!-- Favicon and Icons -->
     <link rel="icon" href="./image/logo.png" type="image/png">
@@ -15,82 +15,55 @@
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#ff69b4">
 
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Happy Birthday Zahra 🎂✨">
-    <meta property="og:description" content="A special birthday surprise with animations, music, memories, and 3D cake!">
-    <meta property="og:type" content="website">
-
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Outfit:wght@300;400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
-    <!-- Film Grain Overlay & Cursor Follower -->
-    <div class="grain-overlay"></div>
-    <div class="cursor-bubble" id="cursorBubble"></div>
-
-    <!-- Matrix Rain Canvas & Particle Text Canvas -->
+    <!-- Matrix Rain Canvas & Main Particle Canvas -->
     <canvas id="matrix-rain"></canvas>
     <canvas class="canvas"></canvas>
 
-    <!-- Overlay & Stage Containers -->
     <div class="overlay">
+        <!-- Floating Stars Container -->
         <div class="stars-container" id="starsContainer"></div>
-        <div class="firework-container" id="fireworkContainer"></div>
 
-        <!-- Romantic Typewriter Message Display -->
+        <!-- Romantic Typewriter Message Box -->
         <div class="content-display" id="contentDisplay">
             <p id="contentText"></p>
         </div>
 
-        <!-- 3D Photo Album (Book) Container -->
+        <!-- 3D Photo Album (Book) -->
         <div class="book-container" id="bookContainer">
             <div class="book" id="book"></div>
-            
-            <!-- Book Navigation Floating Bar -->
-            <div class="book-nav-controls" id="bookNavControls">
-                <button class="book-nav-btn" id="bookPrevBtn" title="Previous Page">
-                    <span>⬅</span> <span data-i18n="prevPage">Prev</span>
-                </button>
-                <div class="page-indicator-badge" id="pageBadge">1 / 5</div>
-                <button class="book-nav-btn" id="bookNextBtn" title="Next Page">
-                    <span data-i18n="nextPage">Next</span> <span>➡</span>
-                </button>
-                <button class="book-nav-btn" id="skipBookBtn" title="Skip to Constellation">
-                    <span data-i18n="skipToConstellation">Skip ✨</span>
-                </button>
-            </div>
         </div>
 
-        <!-- Floating Glass Top Control Dock -->
-        <div class="glass-dock">
-            <button class="glass-btn music-control" id="musicControl" title="Play/Pause Music">
+        <!-- Fireworks & Confetti Container -->
+        <div class="firework-container" id="fireworkContainer"></div>
+
+        <!-- Floating Romantic Controls (Top Right) -->
+        <div class="top-controls">
+            <button class="control-btn music-control" id="musicControl" title="Play/Pause Music">
                 ▶
             </button>
-            <button class="glass-btn lang-switch-btn" id="langSwitchBtn" title="Switch Language">
-                <span>EN</span>
+            <button class="control-btn lang-switch-btn" id="langSwitchBtn" title="Switch Language">
+                EN
             </button>
-            <button class="glass-btn minigame-shortcut-btn" id="miniGameShortcutBtn" title="Play Mini-Game">
-                🎁
-            </button>
-            <button class="glass-btn settings-button" id="settingsButton" title="Settings">
+            <button class="control-btn settings-button" id="settingsButton" title="Settings">
                 ⚙
             </button>
-            <button class="glass-btn" id="fullscreenBtn" title="Toggle Fullscreen">
-                ⛶
-            </button>
         </div>
 
-        <!-- Audio Autoplay Notice Toast -->
-        <div id="audioNoticeToast" data-i18n="audioNotice">
-            Click anywhere to enable music & sound ✨
+        <!-- Settings Hint -->
+        <div id="settingsHint" class="settings-hint">
+            <div class="hint-text" data-i18n="settingsHint">click here to customize settings</div>
         </div>
 
-        <!-- Settings Glass Modal -->
+        <!-- Settings Modal -->
         <div id="settingsModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -99,9 +72,9 @@
                 </div>
                 <div class="modal-body">
                     
-                    <!-- Color Theme Section -->
+                    <!-- Color Theme Selection -->
                     <div class="settings-section">
-                        <h3 data-i18n="colorTheme">🎨 Color Theme</h3>
+                        <h3 data-i18n="colorTheme">🎨 Choose Color Theme</h3>
                         <div class="form-group">
                             <div class="color-theme-buttons">
                                 <button type="button" class="color-theme-btn active" data-theme="pink">
@@ -110,11 +83,11 @@
                                 </button>
                                 <button type="button" class="color-theme-btn" data-theme="blue">
                                     <div class="color-preview blue-preview"></div>
-                                    <span data-i18n="blueTheme">Cyber Blue</span>
+                                    <span data-i18n="blueTheme">Cool Blue</span>
                                 </button>
                                 <button type="button" class="color-theme-btn" data-theme="purple">
                                     <div class="color-preview purple-preview"></div>
-                                    <span data-i18n="purpleTheme">Neon Violet</span>
+                                    <span data-i18n="purpleTheme">Dreamy Purple</span>
                                 </button>
                                 <button type="button" class="color-theme-btn" data-theme="custom">
                                     <div class="color-preview custom-preview"></div>
@@ -122,17 +95,17 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="form-row" id="customColorSection" style="display: none; margin-top: 12px;">
+                        <div class="form-row" id="customColorSection" style="display: none; margin-top: 10px;">
                             <div class="form-group">
-                                <label for="matrixColor1" data-i18n="matrixColor1">Primary Accent Color:</label>
+                                <label for="matrixColor1" data-i18n="matrixColor1">Matrix Color 1:</label>
                                 <input type="color" id="matrixColor1" value="#ff69b4">
                             </div>
                             <div class="form-group">
-                                <label for="matrixColor2" data-i18n="matrixColor2">Secondary Accent Color:</label>
+                                <label for="matrixColor2" data-i18n="matrixColor2">Matrix Color 2:</label>
                                 <input type="color" id="matrixColor2" value="#ff1493">
                             </div>
                             <div class="form-group">
-                                <label for="sequenceColor" data-i18n="sequenceColor">Particle Text Glow Color:</label>
+                                <label for="sequenceColor" data-i18n="sequenceColor">Particle Text Color:</label>
                                 <input type="color" id="sequenceColor" value="#ff69b4">
                             </div>
                         </div>
@@ -142,66 +115,66 @@
                     <div class="settings-section">
                         <h3 data-i18n="music">🎵 Music Settings</h3>
                         <div class="form-group">
-                            <label for="backgroundMusic" data-i18n="backgroundMusic">Background Music Track:</label>
+                            <label for="backgroundMusic" data-i18n="backgroundMusic">Background Music:</label>
                             <select id="backgroundMusic"></select>
                         </div>
                     </div>
 
-                    <!-- Countdown & Timing -->
+                    <!-- Countdown Settings -->
                     <div class="settings-section">
                         <h3 data-i18n="countdown">⏳ Countdown Settings</h3>
                         <div class="form-group">
-                            <label for="countdownTime" data-i18n="countdownTime">Countdown Duration (seconds):</label>
+                            <label for="countdownTime" data-i18n="countdownTime">Countdown Time (seconds):</label>
                             <input type="number" id="countdownTime" value="3" min="1" max="10">
                         </div>
                     </div>
 
                     <!-- Main Text Sequence -->
                     <div class="settings-section">
-                        <h3 data-i18n="sequence">📝 Main Particle Text</h3>
+                        <h3 data-i18n="sequence">📝 Main Text Settings</h3>
                         <div class="form-group">
-                            <label for="sequenceText" data-i18n="sequenceText">Text sequence separated by |:</label>
+                            <label for="sequenceText" data-i18n="sequenceText">Main text content (separated by |):</label>
                             <input type="text" id="sequenceText" value="HAPPY|BIRTHDAY|TO|YOU|ZAHRA|❤">
                         </div>
                     </div>
 
-                    <!-- Matrix Settings -->
+                    <!-- Matrix Rain Settings -->
                     <div class="settings-section">
-                        <h3 data-i18n="matrix">🔢 Matrix Falling Characters</h3>
+                        <h3 data-i18n="matrix">🔢 Matrix Effect Settings</h3>
                         <div class="form-group">
-                            <label for="matrixText" data-i18n="matrixText">Characters:</label>
+                            <label for="matrixText" data-i18n="matrixText">Matrix falling text:</label>
                             <input type="text" id="matrixText" value="HAPPYBIRTHDAY">
                         </div>
                     </div>
 
-                    <!-- Album & Features Settings -->
+                    <!-- Book & Features Settings -->
                     <div class="settings-section">
-                        <h3 data-i18n="book">📖 Memory Book & Interactive Stages</h3>
+                        <h3 data-i18n="book">📖 Book & Features Settings</h3>
                         <div class="form-group">
-                            <label for="enableBook" data-i18n="enableBook">Show Memory Book:</label>
+                            <label for="enableBook" data-i18n="enableBook">Show Book:</label>
                             <select id="enableBook">
-                                <option value="true" data-i18n="on">Enabled</option>
-                                <option value="false" data-i18n="off">Disabled</option>
+                                <option value="true" data-i18n="on">On</option>
+                                <option value="false" data-i18n="off">Off</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="enableHeart" data-i18n="enableHeart">Show Heart Constellation:</label>
+                            <label for="enableHeart" data-i18n="enableHeart">Show Heart Effect:</label>
                             <select id="enableHeart">
-                                <option value="true" data-i18n="on">Enabled</option>
-                                <option value="false" data-i18n="off">Disabled</option>
+                                <option value="true" data-i18n="on">On</option>
+                                <option value="false" data-i18n="off">Off</option>
                             </select>
                         </div>
                         <div id="bookSettingsSection">
                             <div id="pageConfigs"></div>
                         </div>
-                        <div class="form-group" style="margin-top: 14px;">
+                        <div class="form-group" style="margin-top: 12px;">
                             <label for="isSave" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="isSave"> <span data-i18n="saveSettings">Remember preferences on this device</span>
+                                <input type="checkbox" id="isSave"> <span data-i18n="saveSettings">Save settings on this device</span>
                             </label>
                         </div>
                     </div>
 
-                    <button id="applySettings" class="apply-settings-btn" data-i18n="apply">✨ Apply Changes</button>
+                    <button id="applySettings" class="apply-settings-btn" data-i18n="apply">🎉 Apply Settings</button>
                 </div>
             </div>
         </div>
@@ -212,16 +185,20 @@
             Your browser does not support the audio element.
         </audio>
 
-        <!-- Footer Copyright -->
+        <!-- Fullscreen Button -->
+        <button id="fullscreenBtn" title="Fullscreen">
+            <img src="./image/full.png" alt="Fullscreen">
+        </button>
+
+        <!-- Copyright -->
         <div class="copyright" data-i18n="copyright">
-            Crafted with 💕 for Zahra's Birthday
+            Made with 💕 for Zahra's Birthday
         </div>
     </div>
 
-    <!-- Three.js for 3D Birthday Cake -->
+    <!-- Three.js for 3D Cake -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-    // Polyfill CapsuleGeometry for Three.js r128 using a cylinder
     if (typeof THREE !== 'undefined' && !THREE.CapsuleGeometry) {
         THREE.CapsuleGeometry = function(radius, length, capSegments, radialSegments) {
             return new THREE.CylinderGeometry(radius, radius, length + radius * 2, radialSegments || 8);
@@ -229,7 +206,7 @@
     }
     </script>
 
-    <!-- Project Logic Modules -->
+    <!-- Modules -->
     <script src="./lang.js"></script>
     <script src="./jscp/settings.js"></script>
     <script src="./jscp/timeline.js"></script>
@@ -238,15 +215,11 @@
     <script src="./jscp/minigame.js"></script>
     <script src="./jscp/ui.js"></script>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(registration => {
-                    console.log('PWA ServiceWorker registered with scope: ', registration.scope);
-                }).catch(err => {
-                    console.log('PWA ServiceWorker registration notice: ', err);
-                });
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
     </script>
