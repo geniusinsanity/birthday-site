@@ -1,12 +1,11 @@
-// Web Audio API Visualizer matching the stars theme
+// Web Audio API Visualizer with Dynamic Neon Theme Glow
 
 let audioCtx, analyserViz, dataArrayViz, visualizerCanvas, visualizerCtx;
 let isVisualizerInit = false;
-let audioSourceNode = null; // Track the source node to avoid double-connecting
+let audioSourceNode = null;
 
 function initVisualizer() {
     if (isVisualizerInit) {
-        // Already inited — just resume if suspended
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         return;
     }
@@ -14,7 +13,6 @@ function initVisualizer() {
     const audioElement = document.getElementById('birthdayAudio');
     if (!audioElement) return;
 
-    // Create Canvas — only once
     if (!visualizerCanvas) {
         visualizerCanvas = document.createElement('canvas');
         visualizerCanvas.id = 'audio-visualizer';
@@ -22,25 +20,25 @@ function initVisualizer() {
             position: fixed;
             bottom: 0;
             left: 0;
-            width: 100%;
-            height: 120px;
-            z-index: 9000;
+            width: 100vw;
+            height: 90px;
+            z-index: 50;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 1s ease;
+            transition: opacity 1.2s ease;
         `;
         document.body.appendChild(visualizerCanvas);
         visualizerCtx = visualizerCanvas.getContext('2d');
     }
 
     const resizeCanvas = () => {
+        if (!visualizerCanvas) return;
         visualizerCanvas.width = window.innerWidth;
-        visualizerCanvas.height = 120;
+        visualizerCanvas.height = 90;
     };
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Setup Audio Context — only once
     try {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -49,10 +47,10 @@ function initVisualizer() {
 
         if (!analyserViz) {
             analyserViz = audioCtx.createAnalyser();
-            analyserViz.fftSize = 256;
+            analyserViz.fftSize = 128;
+            analyserViz.smoothingTimeConstant = 0.8;
         }
 
-        // Connect source only once — connecting twice throws InvalidStateError
         if (!audioSourceNode) {
             audioSourceNode = audioCtx.createMediaElementSource(audioElement);
             audioSourceNode.connect(analyserViz);
@@ -61,17 +59,15 @@ function initVisualizer() {
 
         const bufferLength = analyserViz.frequencyBinCount;
         dataArrayViz = new Uint8Array(bufferLength);
-
         isVisualizerInit = true;
 
-        // Fade in the canvas
         setTimeout(() => {
-            if (visualizerCanvas) visualizerCanvas.style.opacity = '1';
-        }, 500);
+            if (visualizerCanvas) visualizerCanvas.style.opacity = '0.75';
+        }, 300);
 
         drawVisualizer();
     } catch (e) {
-        console.warn('Visualizer init error:', e);
+        console.warn('Audio Visualizer setup notice:', e);
     }
 }
 
@@ -87,31 +83,30 @@ function drawVisualizer() {
     visualizerCtx.clearRect(0, 0, w, h);
 
     const total = dataArrayViz.length;
-    const barWidth = (w / total) * 2;
-    let x = 0;
+    const barWidth = Math.max(3, Math.floor(w / total) - 2);
+    let x = 2;
+
+    const currentSettings = window.settings || {};
+    const primaryColor = currentSettings.matrixColor1 || '#ff69b4';
+    const secondaryColor = currentSettings.matrixColor2 || '#ff1493';
 
     for (let i = 0; i < total; i++) {
         const pct = dataArrayViz[i] / 255;
-        const barHeight = pct * h * 0.9;
+        const barHeight = Math.max(2, pct * h * 0.85);
 
-        // Gradient from pink to hot pink
-        const r = Math.floor(255);
-        const g = Math.floor(105 + (1 - pct) * 50);
-        const b = Math.floor(180 - pct * 60);
+        const gradient = visualizerCtx.createLinearGradient(0, h, 0, h - barHeight);
+        gradient.addColorStop(0, primaryColor);
+        gradient.addColorStop(1, secondaryColor);
 
-        visualizerCtx.shadowBlur = 18;
-        visualizerCtx.shadowColor = `rgba(255, 20, 147, 0.8)`;
-        visualizerCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-        visualizerCtx.fillRect(x, h - barHeight, barWidth, barHeight);
+        visualizerCtx.shadowBlur = 12;
+        visualizerCtx.shadowColor = secondaryColor;
+        visualizerCtx.fillStyle = gradient;
 
-        x += barWidth + 1;
+        // Rounded bar
+        visualizerCtx.beginPath();
+        visualizerCtx.roundRect ? visualizerCtx.roundRect(x, h - barHeight, barWidth, barHeight, [4, 4, 0, 0]) : visualizerCtx.rect(x, h - barHeight, barWidth, barHeight);
+        visualizerCtx.fill();
+
+        x += barWidth + 3;
     }
 }
-
-// Trigger on first click anywhere — bypasses browser autoplay block
-document.addEventListener('click', () => {
-    initVisualizer();
-    if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-}, { once: false });

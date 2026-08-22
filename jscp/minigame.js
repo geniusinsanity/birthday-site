@@ -1,269 +1,323 @@
-// Mini-game: Catch the Gifts! (Premium Edition)
+// Mini-game: Catch the Gifts! (Portfolio Grade Edition)
+// Glassmorphism HUD, Smooth Physics, Particle Feedback, and Celebration Modal
 
 function initEasterEgg() {
-    // Spawn a hidden floating gift after 15 seconds
+    // Floating secret gift easter egg after 12 seconds
     setTimeout(() => {
-        const secretGift = document.createElement('div');
-        secretGift.innerText = '🎁';
-        secretGift.style.position = 'fixed';
-        secretGift.style.top = '10%';
-        secretGift.style.right = '-50px';
-        secretGift.style.fontSize = '45px';
-        secretGift.style.cursor = 'pointer';
-        secretGift.style.zIndex = '9999';
-        secretGift.style.transition = 'transform 12s linear';
-        secretGift.style.filter = 'drop-shadow(0 0 10px rgba(255, 105, 180, 0.8))';
-        document.body.appendChild(secretGift);
+        spawnFloatingEasterGift();
+    }, 12000);
 
-        // Float across screen
-        setTimeout(() => {
-            secretGift.style.transform = `translate(-${window.innerWidth + 100}px, 200px) rotate(360deg)`;
-        }, 100);
-
-        secretGift.addEventListener('click', () => {
-            secretGift.remove();
+    // Shortcut button in the top dock
+    const shortcutBtn = document.getElementById('miniGameShortcutBtn');
+    if (shortcutBtn) {
+        shortcutBtn.onclick = () => {
             startMiniGame();
-        });
+        };
+    }
+}
 
+function spawnFloatingEasterGift() {
+    if (document.getElementById('floating-secret-gift') || document.getElementById('minigame-overlay')) return;
+
+    const gift = document.createElement('div');
+    gift.id = 'floating-secret-gift';
+    gift.innerText = '🎁';
+    gift.style.cssText = `
+        position: fixed;
+        top: 15%;
+        right: -60px;
+        font-size: 44px;
+        cursor: pointer;
+        z-index: 8900;
+        filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.9));
+        transition: transform 14s linear;
+        animation: floatPulse 2s ease-in-out infinite;
+    `;
+    document.body.appendChild(gift);
+
+    requestAnimationFrame(() => {
+        gift.style.transform = `translate(-${window.innerWidth + 120}px, 160px) rotate(720deg)`;
+    });
+
+    gift.onclick = () => {
+        gift.remove();
+        startMiniGame();
+    };
+
+    setTimeout(() => {
+        if (gift.parentElement) gift.remove();
     }, 15000);
 }
 
 function startMiniGame() {
-    // Premium Glassmorphism Modal Background
+    if (document.getElementById('minigame-overlay')) return;
+
+    // Glassmorphism Backdrop
     const overlay = document.createElement('div');
     overlay.id = 'minigame-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(10, 5, 20, 0.8)';
-    overlay.style.backdropFilter = 'blur(10px)';
-    overlay.style.WebkitBackdropFilter = 'blur(10px)';
-    overlay.style.zIndex = '10000';
-    overlay.style.display = 'flex';
-    overlay.style.justifyContent = 'center';
-    overlay.style.alignItems = 'center';
-    overlay.style.animation = 'fadeInUp 0.5s ease';
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(7, 3, 12, 0.88);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    `;
+    document.body.appendChild(overlay);
 
-    // Premium Container
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+    });
+
+    // Glass Card Container
     const container = document.createElement('div');
-    container.style.width = '90%';
-    container.style.maxWidth = '450px';
-    container.style.height = '75%';
-    container.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-    container.style.border = '1px solid rgba(255, 105, 180, 0.4)';
-    container.style.borderRadius = '20px';
-    container.style.boxShadow = '0 15px 45px rgba(255, 20, 147, 0.3)';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.alignItems = 'center';
-    container.style.padding = '20px';
-    container.style.position = 'relative';
-    container.style.overflow = 'hidden';
+    container.style.cssText = `
+        width: 100%;
+        max-width: 480px;
+        height: 80vh;
+        max-height: 600px;
+        background: var(--theme-glass-bg, rgba(18, 10, 28, 0.75));
+        border: 1px solid var(--theme-glass-border, rgba(255, 105, 180, 0.3));
+        border-radius: 28px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px var(--theme-glow, rgba(255, 105, 180, 0.2));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+    `;
     overlay.appendChild(container);
-    
-    // Header
+
+    // Close button
+    const closeX = document.createElement('span');
+    closeX.innerHTML = '×';
+    closeX.style.cssText = `
+        position: absolute;
+        top: 14px;
+        right: 20px;
+        font-size: 28px;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: color 0.2s, transform 0.2s;
+    `;
+    closeX.onclick = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 400);
+    };
+    container.appendChild(closeX);
+
+    // Title
     const title = document.createElement('h2');
-    title.innerText = "Catch 10 Gifts! 🎁";
-    title.style.color = '#fff';
-    title.style.margin = '0';
-    title.style.fontFamily = 'Pacifico, cursive';
-    title.style.textShadow = '0 0 10px #ff69b4';
+    title.innerText = typeof t === 'function' ? t('miniGameTitle') : 'Catch 10 Gifts! 🎁';
+    title.style.cssText = `
+        color: #ffffff;
+        font-family: var(--font-cursive, 'Pacifico', cursive);
+        margin: 0 0 4px;
+        font-size: 1.5rem;
+        text-shadow: 0 0 15px #ff69b4;
+    `;
     container.appendChild(title);
 
-    const scoreBoard = document.createElement('h3');
-    scoreBoard.innerText = "Score: 0";
-    scoreBoard.style.color = '#ffb6c1';
-    scoreBoard.style.fontFamily = 'Dancing Script, cursive';
-    scoreBoard.style.fontSize = '2rem';
-    scoreBoard.style.margin = '10px 0 20px 0';
+    // Score Board
+    const scoreBoard = document.createElement('div');
+    scoreBoard.innerText = (typeof t === 'function' ? t('scoreLabel') : 'Score:') + ' 0 / 10';
+    scoreBoard.style.cssText = `
+        color: #ffb6c1;
+        font-family: var(--font-display, 'Syne', sans-serif);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+        transition: transform 0.2s ease;
+    `;
     container.appendChild(scoreBoard);
 
-    // Game Canvas Area
+    // Game Arena
     const gameArea = document.createElement('div');
-    gameArea.style.position = 'relative';
-    gameArea.style.width = '100%';
-    gameArea.style.flexGrow = '1';
-    gameArea.style.border = '2px dashed rgba(255, 105, 180, 0.5)';
-    gameArea.style.borderRadius = '15px';
-    gameArea.style.overflow = 'hidden';
-    gameArea.style.background = 'linear-gradient(to bottom, rgba(255,105,180,0.05), rgba(255,20,147,0.1))';
+    gameArea.style.cssText = `
+        position: relative;
+        width: 100%;
+        flex-grow: 1;
+        border: 2px dashed rgba(255, 105, 180, 0.35);
+        border-radius: 18px;
+        overflow: hidden;
+        background: radial-gradient(circle at center, rgba(255, 105, 180, 0.05) 0%, rgba(7, 3, 12, 0.3) 100%);
+    `;
     container.appendChild(gameArea);
 
     // Basket
     const basket = document.createElement('div');
     basket.innerText = '🧺';
-    basket.style.position = 'absolute';
-    basket.style.bottom = '10px';
-    basket.style.left = '50%';
-    basket.style.fontSize = '45px';
-    basket.style.transform = 'translateX(-50%)';
-    basket.style.transition = 'left 0.1s ease-out';
-    basket.style.filter = 'drop-shadow(0 5px 5px rgba(0,0,0,0.5))';
+    basket.style.cssText = `
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        font-size: 46px;
+        transform: translateX(-50%);
+        transition: left 0.08s ease-out;
+        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+        user-select: none;
+        pointer-events: none;
+    `;
     gameArea.appendChild(basket);
 
-    document.body.appendChild(overlay);
-
     let score = 0;
-    let basketX = 50; // percentage
-    let gameInterval;
+    let basketX = 50;
     let gifts = [];
     let isGameOver = false;
+    let gameInterval = null;
 
-    // Movement Physics
-    document.addEventListener('keydown', (e) => {
+    // Movement: Keyboard
+    function handleKey(e) {
         if (isGameOver) return;
-        if (e.key === 'ArrowLeft' && basketX > 8) basketX -= 8;
-        if (e.key === 'ArrowRight' && basketX < 92) basketX += 8;
-        basket.style.left = basketX + '%';
-    });
-    
-    // Smooth Touch support
-    gameArea.addEventListener('touchmove', (e) => {
+        if (e.key === 'ArrowLeft') {
+            basketX = Math.max(10, basketX - 10);
+            basket.style.left = `${basketX}%`;
+        } else if (e.key === 'ArrowRight') {
+            basketX = Math.min(90, basketX + 10);
+            basket.style.left = `${basketX}%`;
+        }
+    }
+    window.addEventListener('keydown', handleKey);
+
+    // Movement: Touch & Mouse on Game Area
+    function updateBasketFromClientX(clientX) {
         if (isGameOver) return;
-        e.preventDefault(); // Prevent scrolling
-        const touch = e.touches[0];
         const rect = gameArea.getBoundingClientRect();
-        let x = ((touch.clientX - rect.left) / rect.width) * 100;
-        if (x < 8) x = 8;
-        if (x > 92) x = 92;
-        basketX = x;
-        basket.style.left = basketX + '%';
+        let pct = ((clientX - rect.left) / rect.width) * 100;
+        pct = Math.max(8, Math.min(92, pct));
+        basketX = pct;
+        basket.style.left = `${basketX}%`;
+    }
+
+    gameArea.addEventListener('mousemove', (e) => updateBasketFromClientX(e.clientX));
+    gameArea.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        updateBasketFromClientX(e.touches[0].clientX);
     }, { passive: false });
 
-    // Mouse control support
-    gameArea.addEventListener('mousemove', (e) => {
-        if (isGameOver) return;
-        const rect = gameArea.getBoundingClientRect();
-        let x = ((e.clientX - rect.left) / rect.width) * 100;
-        if (x < 8) x = 8;
-        if (x > 92) x = 92;
-        basketX = x;
-        basket.style.left = basketX + '%';
-    });
-
     function spawnGift() {
-        const gift = document.createElement('div');
-        gift.innerText = '🎁';
-        gift.style.position = 'absolute';
-        gift.style.top = '-40px';
-        gift.style.left = Math.random() * 80 + 10 + '%';
-        gift.style.fontSize = '35px';
-        gift.style.filter = 'drop-shadow(0 0 8px rgba(255,105,180,0.8))';
-        gift.style.cursor = 'pointer'; // Make it look clickable
-        
-        // Add direct click/touch listener for cursor catching
-        const catchGift = (e) => {
-            if (isGameOver) return;
-            e.preventDefault();
+        const giftEmojis = ['🎁', '🍰', '🌸', '⭐', '🎈'];
+        const el = document.createElement('div');
+        el.innerText = giftEmojis[Math.floor(Math.random() * giftEmojis.length)];
+        el.style.cssText = `
+            position: absolute;
+            top: -40px;
+            left: ${Math.random() * 80 + 10}%;
+            font-size: 34px;
+            filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.8));
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        `;
+
+        // Direct tap catch
+        const catchDirect = (e) => {
             e.stopPropagation();
-            
-            // Catch animation
-            gift.style.transform = 'scale(0)';
-            gift.style.transition = 'transform 0.2s';
-            setTimeout(() => gift.remove(), 200);
-            
-            // Remove from array safely
-            const index = gifts.findIndex(g => g.el === gift);
-            if (index > -1) {
-                gifts.splice(index, 1);
-            }
-            
+            catchGiftObj(giftObj);
+        };
+        el.addEventListener('mousedown', catchDirect);
+        el.addEventListener('touchstart', catchDirect, { passive: false });
+
+        gameArea.appendChild(el);
+        const giftObj = { el, y: -40, speed: Math.random() * 2 + 3 };
+        gifts.push(giftObj);
+    }
+
+    function catchGiftObj(gObj) {
+        if (isGameOver) return;
+        const idx = gifts.indexOf(gObj);
+        if (idx !== -1) {
+            gifts.splice(idx, 1);
+            gObj.el.style.transform = 'scale(1.4) rotate(45deg)';
+            gObj.el.style.opacity = '0';
+            setTimeout(() => gObj.el.remove(), 200);
+
             score++;
-            scoreBoard.innerText = "Score: " + score;
-            scoreBoard.style.transform = 'scale(1.2)';
-            setTimeout(() => scoreBoard.style.transform = 'scale(1)', 150);
+            scoreBoard.innerText = (typeof t === 'function' ? t('scoreLabel') : 'Score:') + ` ${score} / 10`;
+            scoreBoard.style.transform = 'scale(1.25)';
+            setTimeout(() => { scoreBoard.style.transform = 'scale(1)'; }, 150);
 
             if (score >= 10) {
                 winGame();
             }
-        };
-        
-        gift.addEventListener('mousedown', catchGift);
-        gift.addEventListener('touchstart', catchGift, { passive: false });
-        
-        gameArea.appendChild(gift);
-        gifts.push({ el: gift, y: -40, isCaught: false });
+        }
     }
 
     function gameLoop() {
         if (isGameOver) return;
-        
-        // Dynamic spawn rate
-        if (Math.random() < 0.04 + (score * 0.002)) spawnGift();
+
+        if (Math.random() < 0.045) spawnGift();
 
         const basketRect = basket.getBoundingClientRect();
 
         for (let i = gifts.length - 1; i >= 0; i--) {
-            const giftObj = gifts[i];
-            giftObj.y += 4 + (score * 0.2); // gets faster
-            giftObj.el.style.top = giftObj.y + 'px';
+            const g = gifts[i];
+            g.y += g.speed;
+            g.el.style.top = `${g.y}px`;
 
-            const giftRect = giftObj.el.getBoundingClientRect();
+            const gRect = g.el.getBoundingClientRect();
 
-            // Refined collision detection
+            // Collision Detection
             if (
-                giftRect.bottom >= basketRect.top + 10 &&
-                giftRect.top <= basketRect.bottom &&
-                giftRect.right - 15 >= basketRect.left &&
-                giftRect.left + 15 <= basketRect.right
+                gRect.bottom >= basketRect.top + 10 &&
+                gRect.top <= basketRect.bottom &&
+                gRect.right - 10 >= basketRect.left &&
+                gRect.left + 10 <= basketRect.right
             ) {
-                // Catch animation
-                giftObj.el.style.transform = 'scale(0)';
-                giftObj.el.style.transition = 'transform 0.2s';
-                setTimeout(() => giftObj.el.remove(), 200);
-                
-                gifts.splice(i, 1);
-                score++;
-                scoreBoard.innerText = "Score: " + score;
-                scoreBoard.style.transform = 'scale(1.2)';
-                setTimeout(() => scoreBoard.style.transform = 'scale(1)', 150);
-
-                if (score >= 10) {
-                    winGame();
-                }
-            } 
-            // Missed
-            else if (giftObj.y > gameArea.clientHeight + 20) {
-                giftObj.el.remove();
+                catchGiftObj(g);
+            } else if (g.y > gameArea.clientHeight + 20) {
+                g.el.remove();
                 gifts.splice(i, 1);
             }
         }
     }
 
-    gameInterval = setInterval(gameLoop, 30);
+    gameInterval = setInterval(gameLoop, 32);
 
     function winGame() {
         isGameOver = true;
         clearInterval(gameInterval);
+        window.removeEventListener('keydown', handleKey);
+
         gameArea.innerHTML = '';
-        
-        scoreBoard.innerText = "🎉 YOU WON! 🎉";
-        scoreBoard.style.fontSize = '2.5rem';
-        
-        const secretMsg = document.createElement('div');
-        secretMsg.style.textAlign = 'center';
-        secretMsg.style.padding = '20px';
-        secretMsg.style.animation = 'fadeInUp 1s ease';
-        secretMsg.innerHTML = '<h3 style="color:#fff; font-family:\'Pacifico\', cursive; font-size: 1.8rem; line-height: 1.5; text-shadow: 0 0 10px #ff69b4;">Secret Unlocked:<br><br>You are absolutely amazing, and today is all about YOU! 💖</h3>';
-        gameArea.appendChild(secretMsg);
-        
+        scoreBoard.innerText = typeof t === 'function' ? t('miniGameWon') : '🎉 YOU WON! 🎉';
+        scoreBoard.style.fontSize = '1.6rem';
+        scoreBoard.style.color = '#ffd700';
+
+        const winMsg = document.createElement('div');
+        winMsg.style.cssText = `
+            text-align: center;
+            padding: 20px;
+            color: #ffffff;
+            font-family: var(--font-cursive, 'Pacifico', cursive);
+            font-size: 1.3rem;
+            line-height: 1.6;
+            text-shadow: 0 0 15px #ff69b4;
+            animation: fadeIn 0.8s ease;
+        `;
+        winMsg.innerHTML = typeof t === 'function' ? t('secretMsg') : 'Secret Unlocked:<br><br>You bring magic and joy wherever you go. Have the happiest birthday ever! 💖';
+        gameArea.appendChild(winMsg);
+
+        if (typeof showConfetti === 'function') showConfetti();
+        if (typeof showFirework === 'function') showFirework();
+
         const closeBtn = document.createElement('button');
-        closeBtn.innerText = "Close";
-        closeBtn.className = "timeline-btn"; // Reuse our premium button class from CSS
-        closeBtn.style.marginTop = "30px";
-        closeBtn.addEventListener('click', () => {
-            overlay.style.animation = 'fadeOutDown 0.5s ease';
-            setTimeout(() => overlay.remove(), 500);
-        });
-        
-        const btnContainer = document.createElement('div');
-        btnContainer.style.display = 'flex';
-        btnContainer.style.justifyContent = 'center';
-        btnContainer.appendChild(closeBtn);
-        
-        gameArea.appendChild(btnContainer);
+        closeBtn.className = 'timeline-btn';
+        closeBtn.style.marginTop = '16px';
+        closeBtn.innerText = typeof t === 'function' ? t('closeBtn') : 'Continue Celebration 💫';
+        closeBtn.onclick = () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 400);
+        };
+        gameArea.appendChild(closeBtn);
     }
 }
 

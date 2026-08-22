@@ -1,50 +1,60 @@
-// 3D Birthday Cake - Premium Edition
-// Features: Layered cake model, orbit drag, mouse shake to blow candle
+// 3D Birthday Cake - Portfolio Grade Edition
+// Realistic Lighting, Gold Details, Particle Embers, 360 Orbit, Gesture & Audio Blow-out
 
-let scene, camera, renderer, candleFlame, cakeGroup;
+let scene, camera, renderer, candleFlame, cakeGroup, emberParticles;
 let audioContext, analyser, microphone, dataArray;
 let isCakeActive = false;
+let cakeAnimationId = null;
 
 // Shake detection state
-let shakeHistory = [];
-let lastShakeDir = null;
-let shakeSwitches = 0;
 let lastMouseX = 0;
-let shakeThreshold = 80; // px movement to count as a shake direction change
+let shakeSwitches = 0;
+let lastShakeDir = null;
 
 function init3DCake() {
+    if (document.getElementById('cake-container')) return;
     isCakeActive = true;
 
-    // Full-screen premium overlay
+    // Full-screen glass overlay
     const container = document.createElement('div');
     container.id = 'cake-container';
     container.style.cssText = `
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
         z-index: 99999;
-        background: radial-gradient(ellipse at center, #1a0a2e 0%, #0d0518 60%, #000 100%);
+        background: radial-gradient(ellipse at center, rgba(30, 12, 54, 0.95) 0%, rgba(7, 3, 12, 0.98) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         cursor: grab;
+        opacity: 0;
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     `;
     document.body.appendChild(container);
 
-    // Title
+    requestAnimationFrame(() => {
+        container.style.opacity = '1';
+    });
+
+    // Title banner
     const title = document.createElement('h2');
     title.id = 'cake-title';
-    title.innerText = '🎂 Make a Wish! Move cursor left & right 3 times or click!';
+    title.innerText = typeof t === 'function' ? t('cakeTitle') : '🎂 Make a Wish! Move cursor left & right or click!';
     title.style.cssText = `
-        color: #fff;
-        font-family: 'Pacifico', cursive;
-        font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+        color: #ffffff;
+        font-family: var(--font-cursive, 'Pacifico', cursive);
+        font-size: clamp(1rem, 2.5vw, 1.4rem);
         text-align: center;
         text-shadow: 0 0 20px #ff69b4, 0 0 40px #ff1493;
-        margin: 0 20px 10px 20px;
-        z-index: 1;
+        margin: 10px 20px 8px;
+        z-index: 10;
         pointer-events: none;
+        letter-spacing: 0.5px;
     `;
     container.appendChild(title);
 
@@ -53,225 +63,250 @@ function init3DCake() {
     shakeIndicator.id = 'shake-indicator';
     shakeIndicator.innerHTML = '💨 💨 💨';
     shakeIndicator.style.cssText = `
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         letter-spacing: 8px;
-        opacity: 0.3;
+        opacity: 0.4;
         transition: opacity 0.3s;
         margin-bottom: 5px;
-        z-index: 1;
+        z-index: 10;
         pointer-events: none;
     `;
     container.appendChild(shakeIndicator);
 
-    // Fallback if Three.js not loaded
+    // If Three.js is not loaded fallback
     if (typeof THREE === 'undefined') {
         const msg = document.createElement('div');
-        msg.style.cssText = 'color:#ff69b4;font-size:1.2rem;text-align:center;padding:40px;font-family:Dancing Script,cursive;';
-        msg.innerHTML = '🎂<br><br>Click here to blow out the candle and make your wish!';
+        msg.style.cssText = 'color:#ff69b4; font-size:1.4rem; text-align:center; padding:40px; font-family:var(--font-cursive); cursor:pointer;';
+        msg.innerHTML = '🎂<br><br>Click here to blow out the candle and make your wish! ✨';
         container.appendChild(msg);
         container.addEventListener('click', blowOutCandleFallback);
         return;
     }
 
     try {
-    // Three.js scene
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 6, 14);
-    camera.lookAt(0, 2, 0);
+        // Three.js Scene Setup
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight * 0.75), 0.1, 1000);
+        camera.position.set(0, 6, 15);
+        camera.lookAt(0, 2.2, 0);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight * 0.75);
-    renderer.shadowMap.enabled = true;
-    renderer.setClearColor(0x000000, 0);
-    container.appendChild(renderer.domElement);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight * 0.72);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.setClearColor(0x000000, 0);
+        container.appendChild(renderer.domElement);
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffeedd, 0.5);
-    scene.add(ambientLight);
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xfff0f5, 0.65);
+        scene.add(ambientLight);
 
-    const candleLight = new THREE.PointLight(0xffaa33, 2.5, 20);
-    candleLight.position.set(0, 8, 0);
-    scene.add(candleLight);
+        const candleLight = new THREE.PointLight(0xffaa22, 2.8, 25);
+        candleLight.position.set(0, 8.5, 0);
+        scene.add(candleLight);
 
-    const rimLight = new THREE.DirectionalLight(0xff69b4, 0.8);
-    rimLight.position.set(-5, 5, -5);
-    scene.add(rimLight);
+        const rimLight = new THREE.DirectionalLight(0xff69b4, 1.0);
+        rimLight.position.set(-6, 8, -6);
+        scene.add(rimLight);
 
-    // === Build Cake Model ===
-    cakeGroup = new THREE.Group();
-    scene.add(cakeGroup);
+        const rimLight2 = new THREE.DirectionalLight(0x00f2fe, 0.6);
+        rimLight2.position.set(6, 4, 6);
+        scene.add(rimLight2);
 
-    // Plate
-    const plateGeo = new THREE.CylinderGeometry(4.2, 4.2, 0.2, 64);
-    const plateMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 200 });
-    const plate = new THREE.Mesh(plateGeo, plateMat);
-    plate.position.y = -0.1;
-    cakeGroup.add(plate);
+        // === Cake Group & Layers ===
+        cakeGroup = new THREE.Group();
+        scene.add(cakeGroup);
 
-    // Bottom layer - chocolate
-    const layer1Geo = new THREE.CylinderGeometry(3.5, 3.5, 2.2, 64);
-    const layer1Mat = new THREE.MeshPhongMaterial({ color: 0x8b4513, shininess: 60 });
-    const layer1 = new THREE.Mesh(layer1Geo, layer1Mat);
-    layer1.position.y = 1.1;
-    cakeGroup.add(layer1);
-
-    // Frosting bottom
-    const frost1Geo = new THREE.CylinderGeometry(3.6, 3.6, 0.25, 64);
-    const frostMat = new THREE.MeshPhongMaterial({ color: 0xffb6c1, shininess: 150 });
-    const frost1 = new THREE.Mesh(frost1Geo, frostMat);
-    frost1.position.y = 2.32;
-    cakeGroup.add(frost1);
-
-    // Middle layer - pink
-    const layer2Geo = new THREE.CylinderGeometry(2.8, 2.8, 1.8, 64);
-    const layer2Mat = new THREE.MeshPhongMaterial({ color: 0xff69b4, shininess: 80 });
-    const layer2 = new THREE.Mesh(layer2Geo, layer2Mat);
-    layer2.position.y = 3.35;
-    cakeGroup.add(layer2);
-
-    // Frosting middle
-    const frost2 = new THREE.Mesh(
-        new THREE.CylinderGeometry(2.9, 2.9, 0.22, 64),
-        frostMat
-    );
-    frost2.position.y = 4.35;
-    cakeGroup.add(frost2);
-
-    // Top layer - white
-    const layer3Geo = new THREE.CylinderGeometry(2.0, 2.0, 1.5, 64);
-    const layer3Mat = new THREE.MeshPhongMaterial({ color: 0xfff0f5, shininess: 120 });
-    const layer3 = new THREE.Mesh(layer3Geo, layer3Mat);
-    layer3.position.y = 5.22;
-    cakeGroup.add(layer3);
-
-    // Add sprinkle decorations
-    const sprinkleColors = [0xff1493, 0xffd700, 0x00bfff, 0xff4500, 0x7fff00];
-    for (let i = 0; i < 30; i++) {
-        const sprinkleGeo = new THREE.CapsuleGeometry(0.06, 0.25, 4, 8);
-        const sprinkleMat = new THREE.MeshPhongMaterial({
-            color: sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)]
+        // Golden Mirror Plate
+        const plateGeo = new THREE.CylinderGeometry(4.4, 4.4, 0.22, 64);
+        const plateMat = new THREE.MeshStandardMaterial({
+            color: 0xffd700,
+            metalness: 0.8,
+            roughness: 0.2
         });
-        const sprinkle = new THREE.Mesh(sprinkleGeo, sprinkleMat);
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * 1.7;
-        sprinkle.position.set(
-            Math.cos(angle) * radius,
-            6.0,
-            Math.sin(angle) * radius
-        );
-        sprinkle.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-        cakeGroup.add(sprinkle);
-    }
+        const plate = new THREE.Mesh(plateGeo, plateMat);
+        plate.position.y = -0.1;
+        cakeGroup.add(plate);
 
-    // Candle
-    const candleGeo = new THREE.CylinderGeometry(0.18, 0.18, 1.8, 32);
-    const candleMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    const candle = new THREE.Mesh(candleGeo, candleMat);
-    candle.position.set(0, 7.0, 0);
-    cakeGroup.add(candle);
+        // Tier 1 (Bottom - Ruby Chocolate)
+        const layer1Geo = new THREE.CylinderGeometry(3.6, 3.6, 2.0, 64);
+        const layer1Mat = new THREE.MeshStandardMaterial({ color: 0x4a1525, roughness: 0.4 });
+        const layer1 = new THREE.Mesh(layer1Geo, layer1Mat);
+        layer1.position.y = 1.0;
+        cakeGroup.add(layer1);
 
-    // Candle wick
-    const wickGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 8);
-    const wickMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
-    const wick = new THREE.Mesh(wickGeo, wickMat);
-    wick.position.set(0, 8.05, 0);
-    cakeGroup.add(wick);
+        // Frosting 1
+        const frost1Geo = new THREE.CylinderGeometry(3.7, 3.7, 0.25, 64);
+        const frostMat1 = new THREE.MeshStandardMaterial({ color: 0xff69b4, roughness: 0.3 });
+        const frost1 = new THREE.Mesh(frost1Geo, frostMat1);
+        frost1.position.y = 2.1;
+        cakeGroup.add(frost1);
 
-    // Flame (cone + glow sphere)
-    const flameGroup = new THREE.Group();
-    flameGroup.position.set(0, 8.5, 0);
-    cakeGroup.add(flameGroup);
-    candleFlame = flameGroup;
+        // Tier 2 (Middle - Velvet Pink)
+        const layer2Geo = new THREE.CylinderGeometry(2.8, 2.8, 1.8, 64);
+        const layer2Mat = new THREE.MeshStandardMaterial({ color: 0xff1493, roughness: 0.35 });
+        const layer2 = new THREE.Mesh(layer2Geo, layer2Mat);
+        layer2.position.y = 3.1;
+        cakeGroup.add(layer2);
 
-    const flameGeo = new THREE.ConeGeometry(0.22, 0.65, 16);
-    const flameMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.95 });
-    const flameInner = new THREE.Mesh(flameGeo, flameMat);
-    flameGroup.add(flameInner);
+        // Frosting 2
+        const frost2Geo = new THREE.CylinderGeometry(2.9, 2.9, 0.22, 64);
+        const frostMat2 = new THREE.MeshStandardMaterial({ color: 0xffb6c1, roughness: 0.3 });
+        const frost2 = new THREE.Mesh(frost2Geo, frostMat2);
+        frost2.position.y = 4.1;
+        cakeGroup.add(frost2);
 
-    const glowGeo = new THREE.SphereGeometry(0.32, 16, 16);
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.35 });
-    const glow = new THREE.Mesh(glowGeo, glowMat);
-    glow.position.y = -0.15;
-    flameGroup.add(glow);
+        // Tier 3 (Top - Vanilla Cream)
+        const layer3Geo = new THREE.CylinderGeometry(2.0, 2.0, 1.5, 64);
+        const layer3Mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25 });
+        const layer3 = new THREE.Mesh(layer3Geo, layer3Mat);
+        layer3.position.y = 4.95;
+        cakeGroup.add(layer3);
 
-    // Start animation
-    animateCake();
-
-    // Orbit drag controls
-    setupOrbitDrag(container);
-
-    // Shake gesture for blowing
-    setupShakeGesture(container, shakeIndicator);
-
-    // Click fallback
-    container.addEventListener('click', () => {
-        if (isCakeActive && candleFlame && candleFlame.visible) {
-            blowOutCandle();
+        // Colorful Sprinkles on top
+        const sprinkleColors = [0xff1493, 0xffd700, 0x00f2fe, 0xff4500, 0x7fff00, 0xb537f2];
+        for (let i = 0; i < 40; i++) {
+            const spGeo = new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.06, 0.24, 4, 8) : new THREE.CylinderGeometry(0.06, 0.06, 0.24, 8);
+            const spMat = new THREE.MeshStandardMaterial({
+                color: sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)],
+                roughness: 0.3
+            });
+            const sprinkle = new THREE.Mesh(spGeo, spMat);
+            const angle = Math.random() * Math.PI * 2;
+            const radius = Math.random() * 1.65;
+            sprinkle.position.set(Math.cos(angle) * radius, 5.75, Math.sin(angle) * radius);
+            sprinkle.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+            cakeGroup.add(sprinkle);
         }
-    });
 
-    // Mic fallback
-    initMicrophone();
+        // Elegant Birthday Candle
+        const candleGeo = new THREE.CylinderGeometry(0.16, 0.16, 1.8, 32);
+        const candleMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
+        const candle = new THREE.Mesh(candleGeo, candleMat);
+        candle.position.set(0, 6.65, 0);
+        cakeGroup.add(candle);
 
-    } catch(err) {
-        console.error('3D Cake error:', err);
-        // Remove broken canvas if any
-        const broken = container.querySelector('canvas');
-        if (broken) broken.remove();
-        // Show click-to-wish fallback
-        const msg = document.createElement('div');
-        msg.style.cssText = 'color:#ff69b4;font-size:1.4rem;text-align:center;padding:40px;font-family:Dancing Script,cursive;line-height:2;';
-        msg.innerHTML = '🎂<br>Click anywhere to blow out the candle<br>and make your wish! 💫';
-        container.appendChild(msg);
-        container.addEventListener('click', blowOutCandleFallback);
+        // Wick
+        const wickGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.25, 8);
+        const wickMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+        const wick = new THREE.Mesh(wickGeo, wickMat);
+        wick.position.set(0, 7.6, 0);
+        cakeGroup.add(wick);
+
+        // Animated Flame Group
+        candleFlame = new THREE.Group();
+        candleFlame.position.set(0, 8.0, 0);
+        cakeGroup.add(candleFlame);
+
+        const flameGeo = new THREE.ConeGeometry(0.22, 0.7, 16);
+        const flameMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.95 });
+        const flameMesh = new THREE.Mesh(flameGeo, flameMat);
+        candleFlame.add(flameMesh);
+
+        const glowGeo = new THREE.SphereGeometry(0.35, 16, 16);
+        const glowMat = new THREE.MeshBasicMaterial({ color: 0xff3300, transparent: true, opacity: 0.35 });
+        const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+        glowMesh.position.y = -0.1;
+        candleFlame.add(glowMesh);
+
+        // Sparkle Embers
+        const emberGeo = new THREE.BufferGeometry();
+        const emberCount = 30;
+        const emberPos = new Float32Array(emberCount * 3);
+        for (let i = 0; i < emberCount * 3; i += 3) {
+            emberPos[i] = (Math.random() - 0.5) * 0.8;
+            emberPos[i + 1] = Math.random() * 1.5;
+            emberPos[i + 2] = (Math.random() - 0.5) * 0.8;
+        }
+        emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPos, 3));
+        const emberMat = new THREE.PointsMaterial({
+            color: 0xffd700,
+            size: 0.08,
+            transparent: true,
+            opacity: 0.8
+        });
+        emberParticles = new THREE.Points(emberGeo, emberMat);
+        candleFlame.add(emberParticles);
+
+        // Start Loop
+        animate3DCake();
+
+        // Setup Controls & Gestures
+        setupCakeOrbit(container);
+        setupCakeShake(container, shakeIndicator);
+
+        // Click to blow fallback
+        container.addEventListener('click', () => {
+            if (isCakeActive && candleFlame && candleFlame.visible) {
+                blowOutCandle();
+            }
+        });
+
+        initMicrophoneBlow();
+
+        // Responsive Resize
+        window.addEventListener('resize', () => {
+            if (!renderer || !camera) return;
+            camera.aspect = window.innerWidth / (window.innerHeight * 0.75);
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight * 0.72);
+        });
+
+    } catch (err) {
+        console.error('Three.js cake error:', err);
+        blowOutCandleFallback();
     }
 }
 
-// === Orbit Drag ===
-let isDragging = false;
-let prevDragX = 0;
-let prevDragY = 0;
-let cakeRotY = 0;
-let cakeRotX = 0.2;
+// 360 Orbit Interaction
+let isDraggingCake = false;
+let prevCakeMouseX = 0;
+let prevCakeMouseY = 0;
+let cakeRotationY = 0;
+let cakeRotationX = 0.2;
 
-function setupOrbitDrag(container) {
+function setupCakeOrbit(container) {
     container.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        prevDragX = e.clientX;
-        prevDragY = e.clientY;
+        isDraggingCake = true;
+        prevCakeMouseX = e.clientX;
+        prevCakeMouseY = e.clientY;
         container.style.cursor = 'grabbing';
     });
+
     window.addEventListener('mousemove', (e) => {
-        if (isDragging && cakeGroup) {
-            const dx = e.clientX - prevDragX;
-            const dy = e.clientY - prevDragY;
-            cakeRotY += dx * 0.01;
-            cakeRotX += dy * 0.005;
-            cakeRotX = Math.max(-0.5, Math.min(0.8, cakeRotX));
-            prevDragX = e.clientX;
-            prevDragY = e.clientY;
+        if (isDraggingCake && cakeGroup) {
+            const dx = e.clientX - prevCakeMouseX;
+            const dy = e.clientY - prevCakeMouseY;
+            cakeRotationY += dx * 0.01;
+            cakeRotationX += dy * 0.005;
+            cakeRotationX = Math.max(-0.4, Math.min(0.7, cakeRotationX));
+            prevCakeMouseX = e.clientX;
+            prevCakeMouseY = e.clientY;
         }
     });
+
     window.addEventListener('mouseup', () => {
-        isDragging = false;
-        const container = document.getElementById('cake-container');
-        if (container) container.style.cursor = 'grab';
+        isDraggingCake = false;
+        container.style.cursor = 'grab';
     });
+
     // Touch orbit
-    let prevTouchX = 0;
-    container.addEventListener('touchstart', (e) => { prevTouchX = e.touches[0].clientX; });
+    let touchStartX = 0;
+    container.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
     container.addEventListener('touchmove', (e) => {
         if (cakeGroup) {
-            const dx = e.touches[0].clientX - prevTouchX;
-            cakeRotY += dx * 0.01;
-            prevTouchX = e.touches[0].clientX;
+            const dx = e.touches[0].clientX - touchStartX;
+            cakeRotationY += dx * 0.012;
+            touchStartX = e.touches[0].clientX;
         }
-    });
+    }, { passive: true });
 }
 
-// === Mouse Shake Gesture ===
-function setupShakeGesture(container, indicator) {
+// Gesture Shake Detection
+function setupCakeShake(container, indicator) {
     lastMouseX = 0;
     shakeSwitches = 0;
     lastShakeDir = null;
@@ -282,19 +317,17 @@ function setupShakeGesture(container, indicator) {
         const dx = e.clientX - lastMouseX;
         lastMouseX = e.clientX;
 
-        if (Math.abs(dx) < 5) return; // ignore tiny jitter
+        if (Math.abs(dx) < 6) return;
 
         const dir = dx > 0 ? 'right' : 'left';
-
         if (dir !== lastShakeDir) {
             if (lastShakeDir !== null) {
                 shakeSwitches++;
-                // Update indicator
-                const lit = Math.min(shakeSwitches, 3);
+                const count = Math.min(shakeSwitches, 3);
                 indicator.style.opacity = '1';
-                indicator.innerHTML = '💨'.repeat(lit) + '<span style="opacity:0.2">' + '💨'.repeat(3 - lit) + '</span>';
+                indicator.innerHTML = '💨'.repeat(count) + '<span style="opacity:0.2">' + '💨'.repeat(3 - count) + '</span>';
 
-                if (shakeSwitches >= 5) { // ~3 full left-right sweeps = 5 switches
+                if (shakeSwitches >= 5) {
                     blowOutCandle();
                     shakeSwitches = 0;
                 }
@@ -304,29 +337,30 @@ function setupShakeGesture(container, indicator) {
     });
 }
 
-function animateCake() {
+function animate3DCake() {
     if (!isCakeActive) return;
-    requestAnimationFrame(animateCake);
+    cakeAnimationId = requestAnimationFrame(animate3DCake);
 
-    // Auto-rotate slowly when not dragging
-    if (!isDragging && cakeGroup) {
-        cakeRotY += 0.003;
+    if (!isDraggingCake && cakeGroup) {
+        cakeRotationY += 0.0035;
     }
+
     if (cakeGroup) {
-        cakeGroup.rotation.y = cakeRotY;
-        cakeGroup.rotation.x = cakeRotX;
+        cakeGroup.rotation.y = cakeRotationY;
+        cakeGroup.rotation.x = cakeRotationX;
     }
 
-    // Flicker flame
     if (candleFlame && candleFlame.visible) {
-        candleFlame.scale.x = 1 + Math.sin(Date.now() * 0.01) * 0.08 + Math.random() * 0.06;
-        candleFlame.scale.y = 1 + Math.cos(Date.now() * 0.008) * 0.1 + Math.random() * 0.05;
+        candleFlame.scale.x = 1 + Math.sin(Date.now() * 0.015) * 0.08 + (Math.random() - 0.5) * 0.05;
+        candleFlame.scale.y = 1 + Math.cos(Date.now() * 0.012) * 0.1 + (Math.random() - 0.5) * 0.06;
     }
 
-    renderer.render(scene, camera);
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+    }
 }
 
-async function initMicrophone() {
+async function initMicrophoneBlow() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -335,48 +369,65 @@ async function initMicrophone() {
         microphone.connect(analyser);
         analyser.fftSize = 256;
         dataArray = new Uint8Array(analyser.frequencyBinCount);
-        checkBlow();
+        checkAudioBlow();
     } catch (e) {
-        console.warn('Microphone not available, using shake/click fallback.');
+        // Mic denied or unavailable, gestures/clicks work seamlessly
     }
 }
 
-function checkBlow() {
+function checkAudioBlow() {
     if (!isCakeActive || !candleFlame || !candleFlame.visible) return;
-    requestAnimationFrame(checkBlow);
+    requestAnimationFrame(checkAudioBlow);
     analyser.getByteFrequencyData(dataArray);
     let sum = 0;
     for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-    if (sum / dataArray.length > 90) blowOutCandle();
+    if (sum / dataArray.length > 85) {
+        blowOutCandle();
+    }
 }
 
 function blowOutCandle() {
-    if (!candleFlame) return;
+    if (!candleFlame || !candleFlame.visible) return;
     candleFlame.visible = false;
 
-    // Update title
     const title = document.getElementById('cake-title');
     if (title) {
-        title.innerText = '🎉 Happy Birthday! Your wish is coming true! 🎉';
+        title.innerText = typeof t === 'function' ? t('cakeBlown') : '🎉 Happy Birthday Zahra! Your wish is coming true! ✨';
         title.style.textShadow = '0 0 30px #ffd700, 0 0 60px #ff69b4';
     }
 
-    blowOutCandleFallback();
-}
+    const shakeInd = document.getElementById('shake-indicator');
+    if (shakeInd) shakeInd.innerHTML = '✨ 💖 🎂';
 
-function blowOutCandleFallback() {
     if (typeof showFirework === 'function') {
         showFirework();
         setTimeout(showFirework, 400);
         setTimeout(showFirework, 800);
     }
+    if (typeof showConfetti === 'function') {
+        showConfetti();
+    }
+
     setTimeout(() => {
         isCakeActive = false;
+        if (cakeAnimationId) cancelAnimationFrame(cakeAnimationId);
         if (renderer) renderer.dispose();
+
         const container = document.getElementById('cake-container');
         if (container) {
-            container.style.animation = 'fadeOutScale 1s ease forwards';
-            setTimeout(() => container.remove(), 1000);
+            container.style.opacity = '0';
+            container.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                container.remove();
+                // Reveal Easter egg mini-game automatically
+                if (typeof startMiniGame === 'function') {
+                    setTimeout(startMiniGame, 1000);
+                }
+            }, 800);
         }
-    }, 4000);
+    }, 4500);
+}
+
+function blowOutCandleFallback() {
+    blowOutCandle();
 }

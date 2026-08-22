@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GS Birthday Site 🎁</title>
-    <meta name="description" content="A special birthday surprise! A beautiful interactive site with animations, music, and memories!">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title data-i18n="title">Happy Birthday Zahra 🎂✨</title>
+    <meta name="description" content="A special birthday surprise! A beautiful interactive site with animations, music, memories, 3D cake, and mini-games!">
 
     <!-- Favicon and Icons -->
     <link rel="icon" href="./image/logo.png" type="image/png">
@@ -16,58 +16,92 @@
     <meta name="theme-color" content="#ff69b4">
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="GS Birthday Site 🎁">
-    <meta property="og:description"content="A special birthday surprise! A beautiful interactive site with animations, music, and memories!">
+    <meta property="og:title" content="Happy Birthday Zahra 🎂✨">
+    <meta property="og:description" content="A special birthday surprise with animations, music, memories, and 3D cake!">
     <meta property="og:type" content="website">
-    <link rel="stylesheet" href="./css/style.css">
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Outfit:wght@300;400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
+    <!-- Film Grain Overlay & Cursor Follower -->
+    <div class="grain-overlay"></div>
+    <div class="cursor-bubble" id="cursorBubble"></div>
 
-
-    <canvas id="matrix-rain" ></canvas>
+    <!-- Matrix Rain Canvas & Particle Text Canvas -->
+    <canvas id="matrix-rain"></canvas>
     <canvas class="canvas"></canvas>
+
+    <!-- Overlay & Stage Containers -->
     <div class="overlay">
         <div class="stars-container" id="starsContainer"></div>
-        <img id="gift-image" src="happy.gif" alt="a happy GIf" />
+        <div class="firework-container" id="fireworkContainer"></div>
+
+        <!-- Romantic Typewriter Message Display -->
         <div class="content-display" id="contentDisplay">
             <p id="contentText"></p>
         </div>
-        <div class="firework-container" id="fireworkContainer"></div>
-        <div class="book-container">
+
+        <!-- 3D Photo Album (Book) Container -->
+        <div class="book-container" id="bookContainer">
             <div class="book" id="book"></div>
+            
+            <!-- Book Navigation Floating Bar -->
+            <div class="book-nav-controls" id="bookNavControls">
+                <button class="book-nav-btn" id="bookPrevBtn" title="Previous Page">
+                    <span>⬅</span> <span data-i18n="prevPage">Prev</span>
+                </button>
+                <div class="page-indicator-badge" id="pageBadge">1 / 5</div>
+                <button class="book-nav-btn" id="bookNextBtn" title="Next Page">
+                    <span data-i18n="nextPage">Next</span> <span>➡</span>
+                </button>
+                <button class="book-nav-btn" id="skipBookBtn" title="Skip to Constellation">
+                    <span data-i18n="skipToConstellation">Skip ✨</span>
+                </button>
+            </div>
         </div>
 
-        <button class="music-control" id="musicControl" title="Play/Pause Music">
-            ▶
-        </button>
-
-        <button class="lang-switch-btn" id="langSwitchBtn" title="Switch Language">
-            EN
-        </button>
-        <button class="settings-button" id="settingsButton" title="Settings">
-            ⚙
-        </button>
-
-        <!-- Settings hint element -->
-        <div id="settingsHint" class="settings-hint">
-            <div class="hint-text" data-i18n="settingsHint">click here to customize settings</div>
+        <!-- Floating Glass Top Control Dock -->
+        <div class="glass-dock">
+            <button class="glass-btn music-control" id="musicControl" title="Play/Pause Music">
+                ▶
+            </button>
+            <button class="glass-btn lang-switch-btn" id="langSwitchBtn" title="Switch Language">
+                <span>EN</span>
+            </button>
+            <button class="glass-btn minigame-shortcut-btn" id="miniGameShortcutBtn" title="Play Mini-Game">
+                🎁
+            </button>
+            <button class="glass-btn settings-button" id="settingsButton" title="Settings">
+                ⚙
+            </button>
+            <button class="glass-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+                ⛶
+            </button>
         </div>
 
+        <!-- Audio Autoplay Notice Toast -->
+        <div id="audioNoticeToast" data-i18n="audioNotice">
+            Click anywhere to enable music & sound ✨
+        </div>
+
+        <!-- Settings Glass Modal -->
         <div id="settingsModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 data-i18n="settings">⚙️ Website Settings</h2>
-                    <span class="close">×</span>
+                    <span class="close" id="closeSettingsModal">×</span>
                 </div>
                 <div class="modal-body">
                     
+                    <!-- Color Theme Section -->
                     <div class="settings-section">
-                        <h3 data-i18n="colorTheme">🎨 Choose Color Theme</h3>
+                        <h3 data-i18n="colorTheme">🎨 Color Theme</h3>
                         <div class="form-group">
                             <div class="color-theme-buttons">
                                 <button type="button" class="color-theme-btn active" data-theme="pink">
@@ -76,11 +110,11 @@
                                 </button>
                                 <button type="button" class="color-theme-btn" data-theme="blue">
                                     <div class="color-preview blue-preview"></div>
-                                    <span data-i18n="blueTheme">Cool Blue</span>
+                                    <span data-i18n="blueTheme">Cyber Blue</span>
                                 </button>
                                 <button type="button" class="color-theme-btn" data-theme="purple">
                                     <div class="color-preview purple-preview"></div>
-                                    <span data-i18n="purpleTheme">Dreamy Purple</span>
+                                    <span data-i18n="purpleTheme">Neon Violet</span>
                                 </button>
                                 <button type="button" class="color-theme-btn" data-theme="custom">
                                     <div class="color-preview custom-preview"></div>
@@ -88,14 +122,18 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="form-row" id="customColorSection">
+                        <div class="form-row" id="customColorSection" style="display: none; margin-top: 12px;">
                             <div class="form-group">
-                                <label for="matrixColor1" data-i18n="matrixColor1">Matrix color 1:</label>
+                                <label for="matrixColor1" data-i18n="matrixColor1">Primary Accent Color:</label>
                                 <input type="color" id="matrixColor1" value="#ff69b4">
                             </div>
                             <div class="form-group">
-                                <label for="matrixColor2" data-i18n="matrixColor2">Matrix color 2:</label>
+                                <label for="matrixColor2" data-i18n="matrixColor2">Secondary Accent Color:</label>
                                 <input type="color" id="matrixColor2" value="#ff1493">
+                            </div>
+                            <div class="form-group">
+                                <label for="sequenceColor" data-i18n="sequenceColor">Particle Text Glow Color:</label>
+                                <input type="color" id="sequenceColor" value="#ff69b4">
                             </div>
                         </div>
                     </div>
@@ -104,141 +142,114 @@
                     <div class="settings-section">
                         <h3 data-i18n="music">🎵 Music Settings</h3>
                         <div class="form-group">
-                            <label for="backgroundMusic" data-i18n="backgroundMusic">Background Music:</label>
+                            <label for="backgroundMusic" data-i18n="backgroundMusic">Background Music Track:</label>
                             <select id="backgroundMusic"></select>
                         </div>
                     </div>
 
-                    <!-- Countdown Settings -->
+                    <!-- Countdown & Timing -->
                     <div class="settings-section">
                         <h3 data-i18n="countdown">⏳ Countdown Settings</h3>
                         <div class="form-group">
-                            <label for="countdownTime" data-i18n="countdownTime">Countdown Time:</label>
+                            <label for="countdownTime" data-i18n="countdownTime">Countdown Duration (seconds):</label>
                             <input type="number" id="countdownTime" value="3" min="1" max="10">
                         </div>
                     </div>
 
                     <!-- Main Text Sequence -->
                     <div class="settings-section">
-                        <h3 data-i18n="sequence">📝 Main Text Settings</h3>
+                        <h3 data-i18n="sequence">📝 Main Particle Text</h3>
                         <div class="form-group">
-                            <label for="sequenceText" data-i18n="sequenceText">Main text content:</label>
+                            <label for="sequenceText" data-i18n="sequenceText">Text sequence separated by |:</label>
                             <input type="text" id="sequenceText" value="HAPPY|BIRTHDAY|TO|YOU|ZAHRA|❤">
-                        </div>
-                        <div class="form-group">
-                            <label for="sequenceColor" data-i18n="sequenceColor">Main text color:</label>
-                            <input type="color" id="sequenceColor" value="#ff69b4">
                         </div>
                     </div>
 
                     <!-- Matrix Settings -->
                     <div class="settings-section">
-                        <h3 data-i18n="matrix">🔢 Matrix Effect Settings</h3>
+                        <h3 data-i18n="matrix">🔢 Matrix Falling Characters</h3>
                         <div class="form-group">
-                            <label for="matrixText" data-i18n="matrixText">Matrix main text:</label>
+                            <label for="matrixText" data-i18n="matrixText">Characters:</label>
                             <input type="text" id="matrixText" value="HAPPYBIRTHDAY">
                         </div>
                     </div>
 
-                    <!-- Gift & Asset Settings -->
+                    <!-- Album & Features Settings -->
                     <div class="settings-section">
-                        <h3 data-i18n="gift">🎁 Animated Image Settings</h3>
+                        <h3 data-i18n="book">📖 Memory Book & Interactive Stages</h3>
                         <div class="form-group">
-                            <label for="giftImage" data-i18n="giftImage">Animated Image (optional):</label>
-                            <select id="giftImage"></select>
-                        </div>
-                    </div>
-
-                    <!-- Toggle Features -->
-                    <div class="settings-section">
-                        <h3 data-i18n="book">📖 Book & Features Settings</h3>
-                        <div class="form-group">
-                            <label for="enableBook" data-i18n="enableBook">Show book:</label>
+                            <label for="enableBook" data-i18n="enableBook">Show Memory Book:</label>
                             <select id="enableBook">
-                                <option value="true" data-i18n="on">On</option>
-                                <option value="false" data-i18n="off">Off</option>
+                                <option value="true" data-i18n="on">Enabled</option>
+                                <option value="false" data-i18n="off">Disabled</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="enableHeart" data-i18n="enableHeart">Show heart effect:</label>
+                            <label for="enableHeart" data-i18n="enableHeart">Show Heart Constellation:</label>
                             <select id="enableHeart">
-                                <option value="true" data-i18n="on">On</option>
-                                <option value="false" data-i18n="off">Off</option>
+                                <option value="true" data-i18n="on">Enabled</option>
+                                <option value="false" data-i18n="off">Disabled</option>
                             </select>
                         </div>
                         <div id="bookSettingsSection">
                             <div id="pageConfigs"></div>
                         </div>
-                        <div class="form-group" style="margin-top:10px;">
-                            <label for="isSave">
-                                <input type="checkbox" id="isSave"> <span data-i18n="saveSettings">Save settings</span>
+                        <div class="form-group" style="margin-top: 14px;">
+                            <label for="isSave" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="isSave"> <span data-i18n="saveSettings">Remember preferences on this device</span>
                             </label>
                         </div>
                     </div>
 
-                    <div class="settings-p">
-                        <div data-i18n="followNote" class="settings-p">
-                            💝 This special birthday website was lovingly created by geniusinsanity
-                        </div>
-                        <div class="settings-p" data-i18n="notVietnamWarning">
-                            🎉 Happy Birthday! Wishing you a wonderful day filled with joy and love! 💕
-                        </div>
-                    </div>
-                    <button id="applySettings" class="apply-settings-btn" data-i18n="apply">🎉 Apply Settings</button>
+                    <button id="applySettings" class="apply-settings-btn" data-i18n="apply">✨ Apply Changes</button>
                 </div>
             </div>
         </div>
 
-        <audio id="birthdayAudio" loop autoplay>
+        <!-- Audio Element -->
+        <audio id="birthdayAudio" loop preload="auto">
             <source src="./music/zahra.mp3" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
 
+        <!-- Footer Copyright -->
         <div class="copyright" data-i18n="copyright">
-            Made with 💕 for a Special Birthday
+            Crafted with 💕 for Zahra's Birthday
         </div>
+    </div>
 
-        <div id="orientation-lock">
-            <div class="phone-icon">
-                <img src="./image/screen.png" alt="">
-            </div>
-        </div>
+    <!-- Three.js for 3D Birthday Cake -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    // Polyfill CapsuleGeometry for Three.js r128 using a cylinder
+    if (typeof THREE !== 'undefined' && !THREE.CapsuleGeometry) {
+        THREE.CapsuleGeometry = function(radius, length, capSegments, radialSegments) {
+            return new THREE.CylinderGeometry(radius, radius, length + radius * 2, radialSegments || 8);
+        };
+    }
+    </script>
 
-        <!-- Fullscreen button for Android -->
-        <button id="fullscreenBtn">
-            <img src="./image/full.png" alt="Fullscreen">
-        </button>
-        <!-- Three.js r158 for 3D Cake (CapsuleGeometry requires r140+) -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-        <script>
-        // Polyfill CapsuleGeometry for r128 using a cylinder
-        if (typeof THREE !== 'undefined' && !THREE.CapsuleGeometry) {
-            THREE.CapsuleGeometry = function(radius, length, capSegments, radialSegments) {
-                return new THREE.CylinderGeometry(radius, radius, length + radius * 2, radialSegments || 8);
-            };
-        }
-        </script>
+    <!-- Project Logic Modules -->
+    <script src="./lang.js"></script>
+    <script src="./jscp/settings.js"></script>
+    <script src="./jscp/timeline.js"></script>
+    <script src="./jscp/visualizer.js"></script>
+    <script src="./jscp/3d_cake.js"></script>
+    <script src="./jscp/minigame.js"></script>
+    <script src="./jscp/ui.js"></script>
 
-        <script src="./lang.js"></script>
-        <script src="./jscp/settings.js"></script>
-        <script src="./jscp/timeline.js"></script>
-        <script src="./jscp/visualizer.js"></script>
-        <script src="./jscp/3d_cake.js"></script>
-        <script src="./jscp/minigame.js"></script>
-        <script src="./jscp/ui.js"></script>
-
-        <!-- Service Worker Registration -->
-        <script>
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js').then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    }).catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    console.log('PWA ServiceWorker registered with scope: ', registration.scope);
+                }).catch(err => {
+                    console.log('PWA ServiceWorker registration notice: ', err);
                 });
-            }
-        </script>
+            });
+        }
+    </script>
 </body>
 
 </html>

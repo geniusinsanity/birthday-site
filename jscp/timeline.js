@@ -2,7 +2,6 @@
 // Triggered after the heart photos finish
 
 function initTimeline() {
-    // Check if timeline already exists
     if (document.getElementById('timeline-container')) return;
 
     // Create Timeline UI - full screen overlay
@@ -10,22 +9,22 @@ function initTimeline() {
     timelineContainer.id = 'timeline-container';
     timelineContainer.className = 'timeline-container';
     timelineContainer.style.opacity = '0';
-    timelineContainer.style.transition = 'opacity 1s ease';
+    timelineContainer.style.transition = 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
 
     // Milestones data
     const milestones = [
-        { year: "2018", title: "The Beginning ✨", desc: "Where it all started — a star was born! 🌟" },
-        { year: "2020", title: "Unforgettable Memories 💫", desc: "A time filled with joy, laughter, and love." },
-        { year: "2022", title: "Growing Stronger 🌸", desc: "Every day you grow more amazing and beautiful." },
-        { year: "2023", title: "Shining Bright ⭐", desc: "Your kindness and warmth touched so many hearts." },
-        { year: "2024", title: "Happy Birthday Zahra! 🎂", desc: "Wishing you the absolute best today and always!" }
+        { year: "2018", title: "The Star is Born ✨", desc: "Where this incredible journey began — a bright light in the universe! 🌟" },
+        { year: "2020", title: "Pure Joy & Memories 💫", desc: "Moments of radiant smiles, endless laughter, and beautiful growth." },
+        { year: "2022", title: "Blossoming Strength 🌸", desc: "Each day becoming more inspiring, kindhearted, and wonderful." },
+        { year: "2024", title: "Shining Brighter Than Ever ⭐", desc: "Touching hearts with your warmth, elegance, and beautiful spirit." },
+        { year: "Today", title: "Happy Birthday Zahra! 🎂💖", desc: "Wishing you infinite happiness, boundless love, and dreams realized!" }
     ];
 
     let html = '<h2 class="timeline-title">✨ Memory Lane ✨</h2><div class="timeline">';
     milestones.forEach((m, index) => {
         const side = index % 2 === 0 ? 'left' : 'right';
         html += `
-            <div class="timeline-item ${side}">
+            <div class="timeline-item ${side}" style="animation-delay: ${index * 0.15}s">
                 <div class="timeline-content">
                     <span class="timeline-year">${m.year}</span>
                     <h3>${m.title}</h3>
@@ -36,11 +35,11 @@ function initTimeline() {
     });
     html += '</div>';
 
-    // Button - placed OUTSIDE the scrollable area at the bottom
+    // Call to Action Button
     const btnHtml = `
         <div class="timeline-btn-wrapper">
-            <button id="proceedToCakeBtn" class="timeline-btn">
-                Make a Wish 🎂
+            <button id="proceedToCakeBtn" class="timeline-btn timeline-btn-pulse">
+                ${typeof t === 'function' ? t('makeWish') : 'Make a Wish 🎂'}
             </button>
         </div>
     `;
@@ -50,34 +49,25 @@ function initTimeline() {
 
     // Fade in
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            timelineContainer.style.opacity = '1';
-        });
+        timelineContainer.style.opacity = '1';
     });
 
-    // Attach click — do NOT use scrollIntoView (it causes scroll lock bug)
     const btn = document.getElementById('proceedToCakeBtn');
     if (btn) {
-        // Pulse animation via class, not inline style that overrides transform
-        btn.classList.add('timeline-btn-pulse');
-
         btn.addEventListener('click', () => {
             btn.disabled = true;
-            btn.innerText = '🎂 Loading Cake...';
+            btn.innerText = typeof t === 'function' ? t('loadingCake') : '🎂 Loading Cake...';
 
-            // Fade out the whole container
             timelineContainer.style.opacity = '0';
-            timelineContainer.style.transform = 'translateY(60px)';
-            timelineContainer.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            timelineContainer.style.transform = 'translateY(40px)';
+            timelineContainer.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
 
             setTimeout(() => {
                 timelineContainer.remove();
                 if (typeof init3DCake === 'function') {
                     init3DCake();
-                } else {
-                    console.error('init3DCake function not found!');
                 }
-            }, 900);
+            }, 800);
         });
     }
 }

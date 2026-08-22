@@ -1,167 +1,98 @@
+// UI & Core Animation Engine for Birthday Celebration Site
+// Enhanced with portfolio-grade glassmorphism, responsive controls, and fluid transitions
 
-let isLandscape = false;
 let matrixInterval = null;
-const confettiPool = [];
-const maxConfetti = 50;
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-function createConfetti() {
-    const confetti = document.createElement("div");
-    confetti.className = "confetti";
-    return confetti;
-}
-
-function getConfettiFromPool() {
-    if (confettiPool.length > 0) {
-        return confettiPool.pop();
-    }
-    return createConfetti();
-}
-
-function forceResizeMatrix() {
-    const matrixCanvas = document.getElementById('matrix-rain');
-    if (matrixCanvas) {
-
-        matrixCanvas.width = window.innerWidth;
-        matrixCanvas.height = window.innerHeight;
-
-        if (matrixInterval) {
-            clearInterval(matrixInterval);
-            matrixInterval = null;
-        }
-        initMatrixRain();
-    }
-}
-
-function returnConfettiToPool(confetti) {
-    confetti.remove();
-    confettiPool.push(confetti);
-}
-
-function checkOrientation() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const orientationLock = document.getElementById('orientation-lock');
-    const matrixCanvas = document.getElementById('matrix-rain');
-    const mainCanvas = document.querySelector('.canvas');
-    const bookContainer = document.querySelector('.book-container');
-    const book = document.getElementById('book');
-
-    if (!isMobile) {
-        isLandscape = true;
-        orientationLock.style.display = 'none';
-        matrixCanvas.style.display = 'block';
-        mainCanvas.style.display = 'block';
-        if (bookContainer) bookContainer.style.display = 'block';
-        if (book) book.style.display = 'block';
-        startWebsite();
-    } else {
-        const mediaQuery = window.matchMedia("(orientation: landscape)");
-        isLandscape = mediaQuery.matches;
-
-        if (isLandscape) {
-            orientationLock.style.display = 'none';
-            matrixCanvas.style.display = 'block';
-            mainCanvas.style.display = 'block';
-            if (bookContainer) bookContainer.style.display = 'block';
-            if (book) book.style.display = 'block';
-            startWebsite();
-
-            setTimeout(() => {
-                forceResizeMatrix();
-            }, 100);
-        } else {
-            orientationLock.style.display = 'flex';
-            matrixCanvas.style.display = 'none';
-            mainCanvas.style.display = 'none';
-            if (bookContainer) bookContainer.style.display = 'none';
-            if (book) book.style.display = 'none';
-            stopWebsite();
-        }
-
-        mediaQuery.addEventListener('change', (e) => {
-            isLandscape = e.matches;
-            if (isLandscape) {
-                orientationLock.style.display = 'none';
-                matrixCanvas.style.display = 'block';
-                mainCanvas.style.display = 'block';
-                if (bookContainer) bookContainer.style.display = 'block';
-                if (book) book.style.display = 'block';
-                startWebsite();
-
-                setTimeout(() => {
-                    forceResizeMatrix();
-                }, 100);
-            } else {
-                orientationLock.style.display = 'flex';
-                matrixCanvas.style.display = 'none';
-                mainCanvas.style.display = 'none';
-                if (bookContainer) bookContainer.style.display = 'none';
-                if (book) book.style.display = 'none';
-                stopWebsite();
-            }
-        });
-    }
-}
-function startWebsite() {
-    if (!matrixInterval) {
-        initMatrixRain();
-    }
-    if (typeof resetWebsiteState === 'function') {
-        resetWebsiteState();
-    }
-    S.init(); 
-    S.initialized = true;
-}
-
-function stopWebsite() {
-    if (matrixInterval) {
-        clearInterval(matrixInterval);
-        matrixInterval = null;
-        const matrixCanvas = document.getElementById('matrix-rain');
-        if (matrixCanvas) {
-            const matrixCtx = matrixCanvas.getContext('2d');
-            matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-        }
-    }
-}
-
 let matrixChars = "HAPPYBIRTHDAY".split("");
+let currentPage = 0;
+let isFlipping = false;
+let isBookFinished = false;
+let typewriterTimeout = null;
+let photoUrls = [];
+let maxHeartPhotos = 14;
+let heartPhotosCreated = 0;
+
+// ==========================================
+// 1. Interactive Cursor Bubble (Portfolio Style)
+// ==========================================
+function initCursorBubble() {
+    const cursor = document.getElementById('cursorBubble');
+    if (!cursor) return;
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let cursorX = mouseX;
+    let cursorY = mouseY;
+
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function renderCursor() {
+        cursorX += (mouseX - cursorX) * 0.15;
+        cursorY += (mouseY - cursorY) * 0.15;
+        cursor.style.left = `${cursorX}px`;
+        cursor.style.top = `${cursorY}px`;
+        requestAnimationFrame(renderCursor);
+    }
+    requestAnimationFrame(renderCursor);
+
+    // Hover scale effects
+    const interactiveElements = 'button, a, input, select, textarea, .page, .glass-btn, .timeline-content, #gift-image';
+    document.addEventListener('mouseover', (e) => {
+        if (e.target.closest(interactiveElements)) {
+            cursor.classList.add('hovering');
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        if (e.target.closest(interactiveElements)) {
+            cursor.classList.remove('hovering');
+        }
+    });
+}
+
+// ==========================================
+// 2. Matrix Rain Background Effect
+// ==========================================
 function initMatrixRain() {
-    const matrixCanvas = document.getElementById('matrix-rain');
-    const matrixCtx = matrixCanvas.getContext('2d');
+    const canvas = document.getElementById('matrix-rain');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
 
-    matrixCanvas.width = window.innerWidth;
-    matrixCanvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    const fontSize = isMobile ? 13 : 25;
-    const intervalTime = isMobile ? 44 : 50; 
-
-    const columns = Math.floor(matrixCanvas.width / fontSize);
+    const isMobile = window.innerWidth < 768;
+    const fontSize = isMobile ? 14 : 22;
+    const columns = Math.floor(canvas.width / fontSize);
     const drops = [];
-    const columnColors = [];
     const delays = [];
     const started = [];
 
-    const maxLength = Math.floor(matrixCanvas.height / fontSize) + 2;
+    const currentSettings = window.settings || {
+        matrixColor1: '#ff69b4',
+        matrixColor2: '#ff1493',
+        matrixText: 'HAPPYBIRTHDAY'
+    };
+
+    const chars = currentSettings.matrixText.split('');
+    const maxLength = Math.floor(canvas.height / fontSize) + 4;
 
     for (let x = 0; x < columns; x++) {
         drops[x] = 0;
-        columnColors[x] = x % 2 === 0 ?
-            (window.settings ? window.settings.matrixColor1 : settings.matrixColor1) :
-            (window.settings ? window.settings.matrixColor2 : settings.matrixColor2);
         delays[x] = Math.random() * 2000;
         started[x] = false;
     }
 
     let startTime = Date.now();
 
-    function drawMatrixRain() {
-        matrixCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    if (matrixInterval) clearInterval(matrixInterval);
 
-        matrixCtx.font = "bold " + fontSize + "px Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace";
+    function drawMatrixRain() {
+        ctx.fillStyle = 'rgba(7, 3, 12, 0.08)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = `bold ${fontSize}px Menlo, Consolas, monospace`;
 
         const currentTime = Date.now();
 
@@ -171,133 +102,78 @@ function initMatrixRain() {
             }
 
             if (started[i] && drops[i] < maxLength) {
-                const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                const char = chars[Math.floor(Math.random() * chars.length)] || '✨';
                 const x = i * fontSize;
                 const y = drops[i] * fontSize;
+                const color = i % 2 === 0 ? currentSettings.matrixColor1 : currentSettings.matrixColor2;
 
-                const color = columnColors[i];
-                matrixCtx.fillStyle = color;
-                matrixCtx.shadowColor = color;
-                matrixCtx.shadowBlur = 8;
-                matrixCtx.fillText(text, x, y);
-                matrixCtx.shadowBlur = 0;
+                ctx.fillStyle = color;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 10;
+                ctx.fillText(char, x, y);
+                ctx.shadowBlur = 0;
             }
 
-            if (started[i]) {
-                drops[i]++;
-            }
+            if (started[i]) drops[i]++;
 
             if (drops[i] >= maxLength) {
                 drops[i] = 0;
-                delays[i] = Math.random() * 1000;
+                delays[i] = Math.random() * 1200;
                 started[i] = false;
             }
         }
     }
 
-    matrixInterval = setInterval(drawMatrixRain, intervalTime);
-
-    window.addEventListener('resize', () => {
-
-        clearTimeout(window.matrixResizeTimeout);
-        window.matrixResizeTimeout = setTimeout(() => {
-            matrixCanvas.width = window.innerWidth;
-            matrixCanvas.height = window.innerHeight;
-            const newColumns = Math.floor(matrixCanvas.width / fontSize);
-            const newMaxLength = Math.floor(matrixCanvas.height / fontSize) + 2;
-
-            drops.length = 0;
-            columnColors.length = 0;
-            delays.length = 0;
-            started.length = 0;
-
-            for (let x = 0; x < newColumns; x++) {
-                drops[x] = 0;
-                columnColors[x] = x % 2 === 0 ?
-                    (window.settings ? window.settings.matrixColor1 : settings.matrixColor1) :
-                    (window.settings ? window.settings.matrixColor2 : settings.matrixColor2);
-                delays[x] = Math.random() * 1000;
-                started[x] = false;
-            }
-            startTime = Date.now();
-        }, 100);
-    });
+    matrixInterval = setInterval(drawMatrixRain, isMobile ? 45 : 50);
 }
 
-S = {
+// ==========================================
+// 3. Particle Morphing Engine (S.js)
+// ==========================================
+const S = {
     initialized: false,
     init: function () {
-        if (!isLandscape && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            return;
-        }
-        var action = window.location.href,
-            i = action.indexOf('?websiteId=');
-
-        if (i !== -1) {
-
-        } else {
-
-        }
-
         S.Drawing.init('.canvas');
-        document.body.classList.add('body--ready');
-
         S.Drawing.loop(function () {
             S.Shape.render();
         });
+        S.initialized = true;
     }
 };
 
-document.addEventListener('DOMContentLoaded', checkOrientation);
-
 S.Drawing = (function () {
-    var canvas,
-        context,
-        renderFn,
-        requestFrame = window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60);
-            };
+    let canvas, context, renderFn;
+    const requestFrame = window.requestAnimationFrame || function (cb) { setTimeout(cb, 1000 / 60); };
 
     return {
         init: function (el) {
             canvas = document.querySelector(el);
+            if (!canvas) return;
             context = canvas.getContext('2d');
             this.adjustCanvas();
-            window.addEventListener('resize', function () {
-                S.Drawing.adjustCanvas();
-            });
+            window.addEventListener('resize', () => this.adjustCanvas());
         },
-
         loop: function (fn) {
-            renderFn = !renderFn ? fn : renderFn;
+            renderFn = renderFn || fn;
             this.clearFrame();
-            renderFn();
+            if (renderFn) renderFn();
             requestFrame.call(window, this.loop.bind(this));
         },
-
         adjustCanvas: function () {
+            if (!canvas) return;
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         },
-
         clearFrame: function () {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-        },
-
-        getArea: function () {
-
-            if (!canvas) {
-                console.warn('Canvas not initialized, returning default area');
-                return { w: window.innerWidth || 800, h: window.innerHeight || 600 };
+            if (context && canvas) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
             }
-            return { w: canvas.width, h: canvas.height };
+        },
+        getArea: function () {
+            return { w: canvas ? canvas.width : window.innerWidth, h: canvas ? canvas.height : window.innerHeight };
         },
         drawCircle: function (p, c) {
+            if (!context) return;
             context.fillStyle = c.render();
             context.beginPath();
             context.arc(p.x, p.y, p.z, 0, 2 * Math.PI, true);
@@ -308,34 +184,21 @@ S.Drawing = (function () {
 }());
 
 S.UI = (function () {
-    var canvas = document.querySelector('.canvas'),
-        interval,
-        currentAction,
-        time,
-        maxShapeSize = 30,
-        firstAction = true,
-        sequence = [],
-        cmd = '#';
+    let interval;
+    let sequence = [];
+    const cmd = '#';
 
-    function formatTime(date) {
-        var h = date.getHours(),
-            m = date.getMinutes(),
-            m = m < 10 ? '0' + m : m;
-        return h + ':' + m;
+    function getAction(value) {
+        return value && value.startsWith(cmd) && value.substring(1).split(' ')[0];
     }
 
     function getValue(value) {
         return value && value.split(' ')[1];
     }
 
-    function getAction(value) {
-        value = value && value.split(' ')[0];
-        return value && value[0] === cmd && value.substring(1);
-    }
-
     function timedAction(fn, delay, max, reverse) {
         clearInterval(interval);
-        currentAction = reverse ? max : 1;
+        let currentAction = reverse ? max : 1;
         fn(currentAction);
 
         if (!max || (!reverse && currentAction < max) || (reverse && currentAction > 0)) {
@@ -349,149 +212,75 @@ S.UI = (function () {
         }
     }
 
-    function reset(destroy) {
-        clearInterval(interval);
-        sequence = [];
-        time = null;
-        destroy && S.Shape.switchShape(S.ShapeBuilder.letter(''));
-    }
-
     function performAction(value) {
-        var action,
-            value,
-            current;
-
-        sequence = typeof (value) === 'object' ? value : sequence.concat(value.split('|'));
+        sequence = typeof value === 'object' ? value : sequence.concat(value.split('|').filter(s => s.trim() !== ''));
 
         function getDynamicDelay(str) {
-            const base = isMobile ? 1700 : 1900;
-            if (!str || typeof str !== 'string') return base;
-
-            if (str.trim().startsWith('#')) return base;
-            const extra = Math.max(0, (str.length - 5) * 100);
-            if (extra > 0) {
-            }
-            return base + extra;
+            const isMobile = window.innerWidth < 768;
+            const base = isMobile ? 1800 : 2000;
+            if (!str || str.startsWith(cmd)) return base;
+            return base + Math.max(0, (str.length - 4) * 120);
         }
 
-        timedAction(function (index) {
-            current = sequence.shift();
-            action = getAction(current);
-            value = getValue(current);
-
-            const actionDelay = getDynamicDelay(current);
+        timedAction(function () {
+            if (sequence.length === 0) return;
+            const current = sequence.shift();
+            const action = getAction(current);
+            const val = getValue(current);
 
             switch (action) {
                 case 'countdown':
-                    value = parseInt(value) || 10;
-                    value = value > 0 ? value : 10;
+                    const countVal = parseInt(val) || 3;
                     timedAction(function (index) {
                         if (index === 0) {
-                            if (sequence.length === 0) {
-                                S.Shape.switchShape(S.ShapeBuilder.letter(''));
-                            } else {
+                            if (sequence.length > 0) {
                                 performAction(sequence);
                             }
                         } else {
-                            S.Shape.switchShape(S.ShapeBuilder.letter(index), true);
+                            S.Shape.switchShape(S.ShapeBuilder.letter(index.toString()), true);
                         }
-                    }, isMobile ? 1300 : 1400, value, true);
-                    break;
-
-                case 'circle':
-                    value = parseInt(value) || maxShapeSize;
-                    value = Math.min(value, maxShapeSize);
-                    S.Shape.switchShape(S.ShapeBuilder.circle(value));
-                    break;
-
-                case 'time':
-                    var t = formatTime(new Date());
-                    if (sequence.length > 0) {
-                        S.Shape.switchShape(S.ShapeBuilder.letter(t));
-                    } else {
-                        timedAction(function () {
-                            t = formatTime(new Date());
-                            if (t !== time) {
-                                time = t;
-                                S.Shape.switchShape(S.ShapeBuilder.letter(time));
-                            }
-                        }, 1000);
-                    }
+                    }, 1200, countVal, true);
                     break;
 
                 case 'gift':
-                    const canvas = document.querySelector('.canvas');
-                    const giftImage = document.getElementById('gift-image');
-                    const matrixCanvas = document.getElementById('matrix-rain');
-
+                    // Complete morphing sequence -> transition to 3D Book or Constellation
+                    const currentSettings = window.settings || {};
                     showStars();
                     showFloatingHearts();
 
-                    const currentSettings = window.settings || settings;
+                    setTimeout(() => {
+                        const canvas = document.querySelector('.canvas');
+                        const matrixCanvas = document.getElementById('matrix-rain');
+                        if (canvas) canvas.style.display = 'none';
+                        if (matrixCanvas) matrixCanvas.style.opacity = '0.3';
 
-                    if (currentSettings.enableBook === true) {
-                        if (canvas && giftImage && matrixCanvas) {
-                            canvas.style.display = 'none';
-                            matrixCanvas.style.display = 'none';
-
-                            if (giftImage.src && giftImage.src !== window.location.href && giftImage.src !== '' && !giftImage.src.includes('undefined')) {
-                                giftImage.style.display = 'block';
-                                giftImage.style.animation = 'giftCelebration 2s ease-in-out';
-                                setTimeout(() => {
-                                    giftImage.style.display = 'none';
-                                    showBook();
-                                }, 3000);
-                            } else {
-                                showBook();
-                            }
-                        } else {
+                        if (currentSettings.enableBook !== false) {
                             showBook();
+                        } else if (currentSettings.enableHeart !== false) {
+                            startHeartEffect();
+                        } else if (typeof initTimeline === 'function') {
+                            initTimeline();
                         }
-                    } else {
-                        if (canvas && matrixCanvas) {
-                            canvas.style.display = 'none';
-                            matrixCanvas.style.display = 'none';
-                        }
-                        if (giftImage && giftImage.src && giftImage.src !== window.location.href && giftImage.src !== '' && !giftImage.src.includes('undefined')) {
-                            giftImage.style.display = 'block';
-                            giftImage.style.animation = 'giftCelebration 2s ease-in-out';
-                            if (currentSettings.enableHeart === true) {
-                                setTimeout(() => {
-                                    startHeartEffect();
-                                }, 2000);
-                            }
-                        } else {
-                            if (currentSettings.enableHeart === true) {
-                                startHeartEffect();
-                            }
-                        }
-                    }
+                    }, 1000);
                     break;
 
                 default:
-                    S.Shape.switchShape(S.ShapeBuilder.letter(current[0] === cmd ? 'What?' : current));
+                    S.Shape.switchShape(S.ShapeBuilder.letter(current));
+                    break;
             }
         }, getDynamicDelay(sequence[0]), sequence.length);
     }
 
-    function bindEvents() {
-        canvas.addEventListener('click', function (e) { });
-    }
-
-    function init() {
-        bindEvents();
-    }
-
-    init();
-
     return {
         simulate: function (action) {
-            if (isLandscape || !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                performAction(action);
-            }
+            performAction(action);
         },
         reset: function (destroy) {
-            reset(destroy);
+            clearInterval(interval);
+            sequence = [];
+            if (destroy && S.Shape) {
+                S.Shape.switchShape(S.ShapeBuilder.letter(''));
+            }
         }
     };
 }());
@@ -511,53 +300,30 @@ S.Color = function (r, g, b, a) {
     this.a = a;
 };
 
-S.Color.prototype = {
-    render: function () {
-        return 'rgba(' + this.r + ',' + this.g + ',' + this.b + ',' + this.a + ')';
-    }
+S.Color.prototype.render = function () {
+    return `rgba(${this.r},${this.g},${this.b},${this.a})`;
 };
 
 S.Dot = function (x, y) {
     this.p = new S.Point({
         x: x,
         y: y,
-        z: this.getDotSize(),
+        z: window.innerWidth < 768 ? 2.5 : 4.5,
         a: 1,
         h: 0
     });
-    this.e = 0.07;
+    this.e = 0.08;
     this.s = true;
-    const currentSettings = window.settings || settings;
+    const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
     const rgb = hexToRgb(currentSettings.sequenceColor);
     this.c = new S.Color(rgb.r, rgb.g, rgb.b, this.p.a);
-    this.t = this.clone();
+    this.t = new S.Point({ x: x, y: y, z: this.p.z, a: 1, h: 0 });
     this.q = [];
 };
+
 S.Dot.prototype = {
-
-    getDotSize: function () {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            return 2; 
-        } else {
-            return 4; 
-        }
-    },
-
-    clone: function () {
-        return new S.Point({
-            x: this.x,
-            y: this.y,
-            z: this.z,
-            a: this.a,
-            h: this.h
-        });
-    },
-
     _draw: function () {
-
-        const currentSettings = window.settings || settings;
+        const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
         const rgb = hexToRgb(currentSettings.sequenceColor);
         this.c.r = rgb.r;
         this.c.g = rgb.g;
@@ -565,13 +331,11 @@ S.Dot.prototype = {
         this.c.a = this.p.a;
         S.Drawing.drawCircle(this.p, this.c);
     },
-
     _moveTowards: function (n) {
-        var details = this.distanceTo(n, true),
-            dx = details[0],
-            dy = details[1],
-            d = details[2],
-            e = this.e * d;
+        const dx = this.p.x - n.x;
+        const dy = this.p.y - n.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        const e = this.e * d;
 
         if (this.p.h === -1) {
             this.p.x = n.x;
@@ -580,61 +344,30 @@ S.Dot.prototype = {
         }
 
         if (d > 1) {
-            this.p.x -= ((dx / d) * e);
-            this.p.y -= ((dy / d) * e);
+            this.p.x -= (dx / d) * e;
+            this.p.y -= (dy / d) * e;
         } else {
-            if (this.p.h > 0) {
-                this.p.h--;
-            } else {
-                return true;
-            }
+            return true;
         }
-
         return false;
     },
-
     _update: function () {
         if (this._moveTowards(this.t)) {
-            var p = this.q.shift();
+            const p = this.q.shift();
             if (p) {
                 this.t.x = p.x || this.p.x;
                 this.t.y = p.y || this.p.y;
                 this.t.z = p.z || this.p.z;
                 this.t.a = p.a || this.p.a;
-                this.p.h = p.h || 0;
             } else {
-                if (this.s) {
-                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    const amplitude = isMobile ? 0.1 : 3.142;
-                    this.p.x -= Math.sin(Math.random() * amplitude);
-                    this.p.y -= Math.sin(Math.random() * amplitude);
-                } else {
-                    this.move(new S.Point({
-                        x: this.p.x + (Math.random() * 50) - 25,
-                        y: this.p.y + (Math.random() * 50) - 25,
-                    }));
-                }
+                this.p.x -= Math.sin(Math.random() * 2);
+                this.p.y -= Math.sin(Math.random() * 2);
             }
         }
-        d = this.p.a - this.t.a;
-        this.p.a = Math.max(0.1, this.p.a - (d * 0.05));
-        d = this.p.z - this.t.z;
-        this.p.z = Math.max(1, this.p.z - (d * 0.05));
     },
-
-    distanceTo: function (n, details) {
-        var dx = this.p.x - n.x,
-            dy = this.p.y - n.y,
-            d = Math.sqrt(dx * dx + dy * dy);
-        return details ? [dx, dy, d] : d;
+    move: function (p) {
+        this.q.push(p);
     },
-
-    move: function (p, avoidStatic) {
-        if (!avoidStatic || (avoidStatic && this.distanceTo(p) > 1)) {
-            this.q.push(p);
-        }
-    },
-
     render: function () {
         this._update();
         this._draw();
@@ -642,445 +375,350 @@ S.Dot.prototype = {
 };
 
 S.ShapeBuilder = (function () {
-    var shapeCanvas = document.createElement('canvas'),
-        shapeContext = shapeCanvas.getContext('2d'),
-        fontSize = 500,
-        fontFamily = 'Avenir, Helvetica Neue, Helvetica, Arial, sans-serif';
-
-    function getGap() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            return 4; 
-        } else {
-            return 8; 
-        }
-    }
-
-    function fit() {
-        const gap = getGap();
-        shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
-        shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
-        shapeContext.fillStyle = 'red';
-        shapeContext.textBaseline = 'middle';
-        shapeContext.textAlign = 'center';
-    }
+    const shapeCanvas = document.createElement('canvas');
+    const shapeContext = shapeCanvas.getContext('2d');
+    const fontSize = 500;
+    const fontFamily = 'Plus Jakarta Sans, Syne, sans-serif';
 
     function processCanvas() {
-        const gap = getGap();
-        var pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data,
-            dots = [],
-            x = 0,
-            y = 0,
-            fx = shapeCanvas.width,
-            fy = shapeCanvas.height,
-            w = 0,
-            h = 0;
+        const pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
+        const dots = [];
+        const gap = window.innerWidth < 768 ? 6 : 8;
 
-        for (var p = 0; p < pixels.length; p += (4 * gap)) {
-            if (pixels[p + 3] > 0) {
-                dots.push(new S.Point({
-                    x: x,
-                    y: y
-                }));
-
-                w = x > w ? x : w;
-                h = y > h ? y : h;
-                fx = x < fx ? x : fx;
-                fy = y < fy ? y : fy;
-            }
-            x += gap;
-            if (x >= shapeCanvas.width) {
-                x = 0;
-                y += gap;
-                p += gap * 4 * shapeCanvas.width;
+        for (let x = 0; x < shapeCanvas.width; x += gap) {
+            for (let y = 0; y < shapeCanvas.height; y += gap) {
+                const i = (y * shapeCanvas.width + x) * 4;
+                if (pixels[i + 3] > 128) {
+                    dots.push(new S.Point({ x: x, y: y }));
+                }
             }
         }
-        return { dots: dots, w: w + fx, h: h + fy };
+        return dots;
     }
 
     function setFontSize(s) {
-        shapeContext.font = 'bold ' + s + 'px ' + fontFamily;
+        shapeContext.font = `bold ${s}px ${fontFamily}`;
     }
-
-    function isNumber(n) {
-        return !isNaN(parseFloat(n)) && isFinite(n);
-    }
-
-    function init() {
-        fit();
-        window.addEventListener('resize', fit);
-    }
-
-    init();
 
     return {
-        circle: function (d) {
-            var r = Math.max(0, d) / 2;
-            const gap = getGap();
-            shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
-            shapeContext.beginPath();
-            shapeContext.arc(r * gap, r * gap, r * gap, 0, 2 * Math.PI, false);
-            shapeContext.fill();
-            shapeContext.closePath();
-            return processCanvas();
-        },
-
         letter: function (l) {
-            var s = 0;
+            setFontSize(fontSize);
+            const s = Math.min(
+                fontSize,
+                (shapeCanvas.width / shapeContext.measureText(l).width) * 0.8 * fontSize,
+                (shapeCanvas.height / fontSize) * (isLandscape() ? 0.8 : 0.45) * fontSize
+            );
+            setFontSize(s);
 
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const isSmallScreen = window.innerWidth < 768;
-            const baseFontSize = (isMobile || isSmallScreen) ? 250 : 500; 
-
-            setFontSize(baseFontSize);
-            s = Math.min(baseFontSize,
-                (shapeCanvas.width / shapeContext.measureText(l).width) * 0.8 * baseFontSize,
-                (shapeCanvas.height / baseFontSize) * (isNumber(l) ? 0.8 : 0.35) * baseFontSize); 
+            shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+            shapeCanvas.width = Math.floor(window.innerWidth);
+            shapeCanvas.height = Math.floor(window.innerHeight);
 
             setFontSize(s);
-            shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+            shapeContext.textAlign = 'center';
+            shapeContext.textBaseline = 'middle';
+            shapeContext.fillStyle = '#ffffff';
             shapeContext.fillText(l, shapeCanvas.width / 2, shapeCanvas.height / 2);
+
             return processCanvas();
         }
     };
 }());
 
 S.Shape = (function () {
-    var dots = [],
-        width = 0,
-        height = 0,
-        cx = 0,
-        cy = 0;
-
-    function compensate() {
-        var a = S.Drawing.getArea();
-        cx = a.w / 2 - width / 2;
-        cy = a.h / 2 - height / 2;
-    }
-
-    function getDotCreationParams() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const isSmallScreen = window.innerWidth < 768;
-
-        if (isMobile || isSmallScreen) {
-            return {
-                minSize: 1,      
-                maxSize: 4,      
-                minZ: 2,         
-                maxZ: 3          
-            };
-        } else {
-            return {
-                minSize: 3,
-                maxSize: 12,
-                minZ: 4,
-                maxZ: 8
-            };
-        }
-    }
+    let dots = [];
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     return {
         switchShape: function (n, fast) {
-            var size,
-                a = S.Drawing.getArea();
-            width = n.w;
-            height = n.h;
-            compensate();
+            const size = n.length;
+            let i = 0;
 
-            const params = getDotCreationParams();
-
-            if (n.dots.length > dots.length) {
-                size = n.dots.length - dots.length;
-                for (var d = 1; d <= size; d++) {
-                    dots.push(new S.Dot(a.w / 2, a.h / 2));
+            for (i = 0; i < size; i++) {
+                if (!dots[i]) {
+                    dots[i] = new S.Dot(width / 2, height / 2);
                 }
+                dots[i].e = fast ? 0.15 : 0.08;
+                dots[i].move(n[i]);
             }
 
-            var d = 0,
-                i = 0;
-            while (n.dots.length > 0) {
-                i = Math.floor(Math.random() * n.dots.length);
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                dots[d].e = isMobile ? 0.35 : 0.11; 
-
-                if (dots[d].s) {
-                    dots[d].move(new S.Point({
-                        z: Math.random() * (params.maxSize - params.minSize) + params.minSize,
-                        a: Math.random(),
-                        h: 18
-                    }));
-                } else {
-                    dots[d].move(new S.Point({
-                        z: Math.random() * (params.minZ) + params.minZ,
-                        h: fast ? 18 : 30
-                    }));
-                }
-
-                dots[d].s = true;
-                dots[d].move(new S.Point({
-                    x: n.dots[i].x + cx,
-                    y: n.dots[i].y + cy,
-                    a: 1,
-                    z: params.minZ,
-                    h: 0
+            for (; i < dots.length; i++) {
+                dots[i].move(new S.Point({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    a: 0,
+                    z: 0
                 }));
-
-                n.dots = n.dots.slice(0, i).concat(n.dots.slice(i + 1));
-                d++;
-            }
-
-            for (var i = d; i < dots.length; i++) {
-                if (dots[i].s) {
-                    dots[i].move(new S.Point({
-                        z: Math.random() * (params.maxSize - params.minSize) + params.minSize,
-                        a: Math.random(),
-                        h: 20
-                    }));
-                    dots[i].s = false;
-                    dots[i].e = 0.04;
-                    dots[i].move(new S.Point({
-                        x: Math.random() * a.w,
-                        y: Math.random() * a.h,
-                        a: 0.3,
-                        z: Math.random() * params.minZ,
-                        h: 0
-                    }));
-                }
             }
         },
-
         render: function () {
-            for (var d = 0; d < dots.length; d++) {
-                dots[d].render();
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].render();
             }
         }
     };
 }());
 
-const heartPool = [];
-const maxFloatingHearts = 25; 
-
-function createFloatingHeart() {
-    const heart = document.createElement('div');
-    heart.className = 'heart';
-    return heart;
+function isLandscape() {
+    return window.innerWidth > window.innerHeight;
 }
 
-function getHeartFromPool() {
-    if (heartPool.length > 0) {
-        return heartPool.pop();
-    }
-    return createFloatingHeart();
-}
-
-function returnHeartToPool(heart) {
-    heart.remove();
-    heartPool.push(heart);
-}
-
-function showFloatingHearts() {
-    const heartSymbols = ['❤️', '💕', '💖', '💗', '💓', '💞'];
-
-    let heartCount = 0;
-    function spawnHeart() {
-        if (heartCount >= maxFloatingHearts) return;
-
-        const heart = getHeartFromPool();
-        heart.innerHTML = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
-        heart.style.left = Math.random() * 100 + '%';
-        heart.style.top = '100%';
-        heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
-
-        document.body.appendChild(heart);
-        heartCount++;
-
-        setTimeout(() => returnHeartToPool(heart), 10000);
-
-        if (heartCount < maxFloatingHearts) {
-            setTimeout(spawnHeart, 1600); 
-        }
-}
-
-    spawnHeart();
-}
-
-
-function showBook() {
-
+// ==========================================
+// 4. 3D Photo Album (Book) Engine
+// ==========================================
+function createPages() {
     const book = document.getElementById('book');
-    const bookContainer = document.querySelector('.book-container');
+    if (!book) return;
+    book.innerHTML = '';
 
-    showStars();
-    if (book && bookContainer) {
-        bookContainer.style.display = 'block';
-        bookContainer.classList.add('show');
-        book.style.display = 'block';
+    const currentPages = (window.settings && window.settings.pages) || [];
+    const totalPhysicalPages = Math.ceil(currentPages.length / 2);
 
-        calculatePageZIndexes();
+    for (let i = 0; i < totalPhysicalPages; i++) {
+        const pageEl = document.createElement('div');
+        pageEl.className = 'page';
+        pageEl.dataset.page = i;
 
-        setupPageObserver();
+        const frontIdx = i * 2;
+        const backIdx = frontIdx + 1;
 
-        requestAnimationFrame(() => {
-            book.style.opacity = '0';
-            book.style.transform = 'scale(0.8) translateY(50px)';
-            book.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        // Front face
+        const front = document.createElement('div');
+        front.className = 'page-front';
+        if (currentPages[frontIdx]) {
+            const img = document.createElement('img');
+            img.src = currentPages[frontIdx].image || './image/Birthday!/cover.jpg';
+            front.appendChild(img);
+        }
 
-            requestAnimationFrame(() => {
-                book.style.opacity = '1';
-                book.style.transform = 'scale(1) translateY(0)';
+        // Back face
+        const back = document.createElement('div');
+        back.className = 'page-back';
+        if (currentPages[backIdx]) {
+            const img = document.createElement('img');
+            img.src = currentPages[backIdx].image || './image/Birthday!/9.jpg';
+            back.appendChild(img);
+        }
 
-                setTimeout(() => {
-                    if (!isPlaying) {
-                        toggleMusic();
-                    }
-                }, 800);
-            });
+        pageEl.appendChild(front);
+        pageEl.appendChild(back);
+        book.appendChild(pageEl);
+
+        // Click to flip
+        pageEl.addEventListener('click', (e) => {
+            if (isFlipping) return;
+            const rect = pageEl.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            if (clickX >= rect.width / 2 && !pageEl.classList.contains('flipped')) {
+                nextPage();
+            } else if (clickX < rect.width / 2 && pageEl.classList.contains('flipped')) {
+                prevPage();
+            }
         });
     }
 
-    // Add pulsing "Tap to Open" hint on the book cover
-    const tapHint = document.createElement('div');
-    tapHint.id = 'book-tap-hint';
-    tapHint.innerText = '👆 Tap to Open';
-    tapHint.style.position = 'absolute';
-    tapHint.style.bottom = '15%';
-    tapHint.style.left = '50%';
-    tapHint.style.transform = 'translateX(-50%)';
-    tapHint.style.color = 'white';
-    tapHint.style.fontFamily = 'Dancing Script, cursive';
-    tapHint.style.fontSize = '1.3rem';
-    tapHint.style.textShadow = '0 0 10px #ff69b4, 0 0 20px #ff1493';
-    tapHint.style.animation = 'pulse 2s infinite';
-    tapHint.style.zIndex = '400';
-    tapHint.style.pointerEvents = 'none';
-    bookContainer.appendChild(tapHint);
-
-    // Simple click on the book opens the first page
-    book.addEventListener('click', (e) => {
-        if (!isFlipping && currentPage === 0) {
-            const hint = document.getElementById('book-tap-hint');
-            if (hint) hint.remove();
-            nextPage();
-        }
-    });
-
-}
-function hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : { r: 211, g: 155, b: 155 };
+    updatePageZIndexes();
+    updatePageBadge();
+    photoUrls = currentPages.map(p => p.image).filter(Boolean);
 }
 
-const book = document.getElementById('book');
-const contentDisplay = document.getElementById('contentDisplay');
-const contentText = document.getElementById('contentText');
-let currentPage = 0;
-let isFlipping = false;
-let typewriterTimeout;
-let isBookFinished = false;
-let photoUrls = pages.filter(page => page.image).map(page => page.image);
-
-function showConfetti() {
-    const confettiColors = ['#ff6f91', '#ff9671', '#ffc75f', '#f9f871', '#ff3c78'];
-
-    let confettiCount = 0;
-    function spawnConfetti() {
-        if (confettiCount >= maxConfetti) return;
-
-        const confetti = getConfettiFromPool();
-        confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
-        confetti.style.setProperty('--x', (Math.random() * 400 - 200) + 'px');
-        confetti.style.setProperty('--y', (Math.random() * -400) + 'px');
-        confetti.style.left = (window.innerWidth / 2) + 'px';
-        confetti.style.top = (window.innerHeight / 2) + 'px';
-        document.body.appendChild(confetti);
-
-        setTimeout(() => returnConfettiToPool(confetti), 1000);
-
-        confettiCount++;
-
-        if (confettiCount < maxConfetti) {
-            setTimeout(spawnConfetti, 20); 
-        }
-    }
-
-    spawnConfetti();
-}
-
-let fireworkContainer = null;
-function showFirework() {
-    if (!fireworkContainer) {
-        fireworkContainer = document.getElementById('fireworkContainer');
-    }
-
-    fireworkContainer.innerHTML = '';
-    fireworkContainer.style.opacity = 1;
-
-    const fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < 20; i++) { 
-        const fw = document.createElement('div');
-        fw.className = 'firework';
-        fw.style.transform = `rotate(${i * 18}deg) translateY(-40px)`; 
-        fragment.appendChild(fw);
-    }
-
-    fireworkContainer.appendChild(fragment);
-
-    requestAnimationFrame(() => {
-        setTimeout(() => {
-            fireworkContainer.style.opacity = 0;
-        }, 1000);
+function updatePageZIndexes() {
+    const allPages = document.querySelectorAll('.page');
+    const total = allPages.length;
+    allPages.forEach((p, idx) => {
+        p.style.setProperty('--page-z-index', (total - idx).toString());
+        p.style.setProperty('--page-flipped-z-index', (idx + 1).toString());
     });
 }
 
-const photoCache = new Map();
-let heartPhotosCreated = 0;
-const maxHeartPhotos = 30;
+function updatePageBadge() {
+    const badge = document.getElementById('pageBadge');
+    const totalPhysicalPages = Math.ceil(((window.settings && window.settings.pages) || []).length / 2);
+    if (badge) {
+        badge.textContent = `${currentPage + 1} / ${totalPhysicalPages || 1}`;
+    }
+}
 
-function preloadPhoto(url) {
-    if (photoCache.has(url)) {
-        return photoCache.get(url);
+function showBook() {
+    const bookContainer = document.getElementById('bookContainer');
+    if (bookContainer) {
+        bookContainer.style.display = 'flex';
+        requestAnimationFrame(() => {
+            bookContainer.classList.add('show');
+            showPageContent();
+        });
+    }
+}
+
+function hideBook() {
+    const bookContainer = document.getElementById('bookContainer');
+    const contentDisplay = document.getElementById('contentDisplay');
+    if (bookContainer) {
+        bookContainer.classList.remove('show');
+        setTimeout(() => { bookContainer.style.display = 'none'; }, 800);
+    }
+    if (contentDisplay) {
+        contentDisplay.classList.remove('show');
+    }
+}
+
+function nextPage() {
+    const allPages = document.querySelectorAll('.page');
+    if (currentPage < allPages.length && !isFlipping) {
+        isFlipping = true;
+        const pageToFlip = allPages[currentPage];
+        if (pageToFlip) {
+            pageToFlip.classList.add('flipped');
+            currentPage++;
+            updatePageBadge();
+            showPageContent();
+            setTimeout(() => {
+                isFlipping = false;
+                if (currentPage >= allPages.length) {
+                    onBookFinished();
+                }
+            }, 600);
+        }
+    }
+}
+
+function prevPage() {
+    const allPages = document.querySelectorAll('.page');
+    if (currentPage > 0 && !isFlipping) {
+        isFlipping = true;
+        currentPage--;
+        const pageToFlip = allPages[currentPage];
+        if (pageToFlip) {
+            pageToFlip.classList.remove('flipped');
+            updatePageBadge();
+            showPageContent();
+            setTimeout(() => {
+                isFlipping = false;
+            }, 600);
+        }
+    }
+}
+
+function onBookFinished() {
+    if (isBookFinished) return;
+    isBookFinished = true;
+    setTimeout(() => {
+        hideBook();
+        startHeartEffect();
+    }, 1200);
+}
+
+function showPageContent() {
+    if (typewriterTimeout) clearTimeout(typewriterTimeout);
+    const contentDisplay = document.getElementById('contentDisplay');
+    const contentText = document.getElementById('contentText');
+    const currentPages = (window.settings && window.settings.pages) || [];
+
+    const logicalIdx = currentPage * 2;
+    const message = currentPages[logicalIdx]?.content || currentPages[logicalIdx + 1]?.content;
+
+    if (message && contentDisplay && contentText) {
+        contentDisplay.classList.add('show');
+        contentText.innerHTML = '';
+        typewriterEffect(contentText, message, 30);
+    } else if (contentDisplay) {
+        contentDisplay.classList.remove('show');
+    }
+}
+
+function typewriterEffect(element, text, speed = 30) {
+    let i = 0;
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            typewriterTimeout = setTimeout(type, speed);
+        }
+    }
+    type();
+}
+
+// Touch swipe support for Book
+function setupBookGestures() {
+    const book = document.getElementById('book');
+    if (!book) return;
+
+    let touchStartX = 0;
+    book.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    book.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 40) {
+            if (diff < 0) nextPage();
+            else prevPage();
+        }
+    }, { passive: true });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextPage();
+        if (e.key === 'ArrowLeft') prevPage();
+    });
+
+    // Book Navigation Buttons
+    const prevBtn = document.getElementById('bookPrevBtn');
+    const nextBtn = document.getElementById('bookNextBtn');
+    const skipBtn = document.getElementById('skipBookBtn');
+
+    if (prevBtn) prevBtn.onclick = prevPage;
+    if (nextBtn) nextBtn.onclick = nextPage;
+    if (skipBtn) {
+        skipBtn.onclick = () => {
+            hideBook();
+            startHeartEffect();
+        };
+    }
+}
+
+// ==========================================
+// 5. Heart Constellation & Photo Orbit
+// ==========================================
+function startHeartEffect() {
+    const currentSettings = window.settings || {};
+    if (currentSettings.enableHeart === false) {
+        if (typeof initTimeline === 'function') initTimeline();
+        return;
     }
 
-    const img = new Image();
-    img.src = url;
-    photoCache.set(url, img);
-    return img;
+    showConfetti();
+    showFirework();
+    spawnHeartPhotosCentered();
 }
 
 function createHeartPhotoCentered(idx, total) {
     if (heartPhotosCreated >= maxHeartPhotos) return;
 
-    const photoUrl = photoUrls[idx % photoUrls.length];
-    const cachedImg = preloadPhoto(photoUrl);
-
+    const photoUrl = photoUrls[idx % photoUrls.length] || './image/Birthday!/photo1.jpg';
     const photo = document.createElement('img');
     photo.src = photoUrl;
     photo.className = 'photo';
-    photo.style.zIndex = '300';
 
     const centerX = window.innerWidth * 0.5;
     const centerY = window.innerHeight * 0.5;
     const t = (idx / total) * 2 * Math.PI;
 
-    const isLandscapeMobile = window.innerHeight <= 500 && window.innerWidth > window.innerHeight;
-    const scale = isLandscapeMobile ? 8 : 16;
+    const isMobile = window.innerWidth < 768;
+    const scale = isMobile ? 8 : 15;
 
     const sin_t = Math.sin(t);
     const cos_t = Math.cos(t);
     const targetX = scale * 16 * Math.pow(sin_t, 3);
     const targetY = -scale * (13 * cos_t - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
 
-    photo.style.left = centerX + 'px';
-    photo.style.top = centerY + 'px';
+    photo.style.left = `${centerX}px`;
+    photo.style.top = `${centerY}px`;
     photo.style.opacity = '0';
     photo.style.transform = 'translate(-50%, -50%) scale(0)';
-    photo.style.transition = 'all 1.5s ease-out'; 
+    photo.style.transition = 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
 
     document.body.appendChild(photo);
     heartPhotosCreated++;
@@ -1088,536 +726,207 @@ function createHeartPhotoCentered(idx, total) {
     requestAnimationFrame(() => {
         photo.style.opacity = '1';
         photo.style.transform = 'translate(-50%, -50%) scale(1)';
-        photo.style.left = (centerX + targetX) + 'px';
-        photo.style.top = (centerY + targetY) + 'px';
+        photo.style.left = `${centerX + targetX}px`;
+        photo.style.top = `${centerY + targetY}px`;
     });
 }
 
 function spawnHeartPhotosCentered() {
     heartPhotosCreated = 0;
-
-    photoUrls.forEach(url => preloadPhoto(url));
-
     let currentIndex = 0;
+
     function spawnNext() {
         if (currentIndex < maxHeartPhotos) {
             createHeartPhotoCentered(currentIndex, maxHeartPhotos);
             currentIndex++;
-
-            setTimeout(() => {
-                requestAnimationFrame(spawnNext);
-            }, 80); 
+            setTimeout(spawnNext, 90);
         } else {
-            // Heart photos finished spawning, wait a bit then show timeline
             setTimeout(() => {
                 if (typeof initTimeline === 'function') {
                     initTimeline();
                 }
-            }, 2000);
+            }, 2500);
         }
     }
-
     spawnNext();
 }
 
-function startHeartEffect() {
-    const currentSettings = window.settings || settings;
-    if (!currentSettings.enableHeart) {
-        return;
-    }
+function showFloatingHearts() {
+    const interval = setInterval(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerText = ['💖', '💕', '🌸', '✨', '🎂', '⭐'][Math.floor(Math.random() * 6)];
+        heart.style.left = `${Math.random() * 95}vw`;
+        heart.style.bottom = '-30px';
+        document.body.appendChild(heart);
 
-    const book = document.getElementById('book');
-    const bookContainer = document.querySelector('.book-container');
-    const contentDisplay = document.getElementById('contentDisplay');
+        setTimeout(() => heart.remove(), 4000);
+    }, 400);
 
-    if (book) {
-        book.style.display = 'none';
-        book.classList.remove('show');
-    }
-    if (bookContainer) {
-        bookContainer.style.display = 'none';
-        bookContainer.classList.remove('show');
-    }
-    if (contentDisplay) {
-        contentDisplay.classList.remove('show');
-    }
-
-    requestAnimationFrame(() => {
-        setTimeout(() => {
-            showConfetti();
-        }, 100);
-
-        setTimeout(() => {
-            showFirework();
-        }, 200);
-
-        setTimeout(() => {
-            spawnHeartPhotosCentered();
-        }, 300);
-    });
+    setTimeout(() => clearInterval(interval), 15000);
 }
 
-function checkBookFinished() {
-    const totalPhysicalPages = Math.ceil(pages.length / 2);
-    const lastPageIndex = totalPhysicalPages - 1;
-    const lastPage = document.querySelector(`.page[data-page="${lastPageIndex}"]`);
-    if (currentPage === lastPageIndex && lastPage && lastPage.classList.contains('flipped')) {
-        if (!isBookFinished) {
-            isBookFinished = true;
-            const contentDisplay = document.getElementById('contentDisplay');
-            if (contentDisplay) {
-                contentDisplay.classList.remove('show');
-            }
-            setTimeout(() => {
-                const currentSettings = window.settings || settings;
-                if (currentSettings.enableHeart) {
-                    startHeartEffect();
-                }
-            }, 1000);
-        }
-    }
-}
+function showConfetti() {
+    const colors = ['#ff69b4', '#ff1493', '#ffd700', '#00f2fe', '#b537f2', '#ffffff'];
+    for (let i = 0; i < 60; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti';
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.left = `${Math.random() * 100}vw`;
+        conf.style.top = '-10px';
+        conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+        conf.style.transition = `top ${Math.random() * 2 + 2}s cubic-bezier(0.25, 1, 0.5, 1), transform 3s ease`;
 
-function nextPage() {
-    const totalPhysicalPages = Math.ceil(pages.length / 2);
-    if (currentPage < totalPhysicalPages - 1 && !isFlipping) {
-        isFlipping = true;
-        const pageToFlip = document.querySelector(`.page[data-page="${currentPage}"]`);
-        pageToFlip.classList.add('flipping');
-        setTimeout(() => {
-            pageToFlip.classList.remove('flipping');
-            pageToFlip.classList.add('flipped');
-            currentPage++;
-            isFlipping = false;
-            showPageContent();
-            checkBookFinished();
-        }, 400);
-    } else if (currentPage === totalPhysicalPages - 1 && !isFlipping) {
-        const lastPage = document.querySelector(`.page[data-page="${currentPage}"]`);
-        if (lastPage && !lastPage.classList.contains('flipped')) {
-            isFlipping = true;
-            lastPage.classList.add('flipping');
-            setTimeout(() => {
-                lastPage.classList.remove('flipping');
-                lastPage.classList.add('flipped');
-                isFlipping = false;
-                showPageContent();
-                checkBookFinished();
-            }, 400);
-        }
-    }
-}
+        document.body.appendChild(conf);
 
-function prevPage() {
-    if (currentPage > 0 && !isFlipping) {
-        isFlipping = true;
-        currentPage--;
-        const pageToFlip = document.querySelector(`.page[data-page="${currentPage}"]`);
-        pageToFlip.classList.add('flipping');
-        setTimeout(() => {
-            pageToFlip.classList.remove('flipping');
-            pageToFlip.classList.remove('flipped');
-            isFlipping = false;
-            showPageContent();
-            isBookFinished = false;
-        }, 400);
-    }
-}
-
-function typewriterEffect(element, text, speed = 50) {
-    return new Promise((resolve) => {
-        element.innerHTML = '';
-        let i = 0;
-        let lastScrollTime = 0;
-
-        function type() {
-            if (i < text.length) {
-                element.innerHTML += text.charAt(i);
-                i++;
-
-                const now = Date.now();
-                if (now - lastScrollTime > 100) { 
-                    const container = element.closest('.content-display');
-                    if (container && container.scrollHeight > container.clientHeight) {
-                        container.scrollTop = container.scrollHeight - container.clientHeight;
-                    }
-                    lastScrollTime = now;
-                }
-
-                if (speed < 16) {
-                    requestAnimationFrame(type);
-                } else {
-                    typewriterTimeout = setTimeout(type, speed);
-                }
-            } else {
-                resolve();
-            }
-        }
-        type();
-    });
-}
-
-async function showPageContent() {
-    if (typewriterTimeout) {
-        clearTimeout(typewriterTimeout);
-    }
-    let logicalPageIndex = 0;
-    if (currentPage === 0) {
-        logicalPageIndex = 0;
-    } else {
-        const currentPhysicalPage = document.querySelector(`.page[data-page="${currentPage}"]`);
-        if (currentPhysicalPage && currentPhysicalPage.classList.contains('flipped')) {
-            logicalPageIndex = currentPage * 2 + 1;
-        } else {
-            logicalPageIndex = currentPage * 2;
-        }
-    }
-    const contentToShow = pages[logicalPageIndex]?.content;
-    if (contentToShow) {
-        contentDisplay.classList.add('show');
-        contentText.innerHTML = '';
-        await typewriterEffect(contentText, contentToShow, 30);
-    } else {
-        contentDisplay.classList.remove('show');
-    }
-}
-
-function createPlaceholderImage(text) {
-    return `data:image/svg+xml;base64,${btoa(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
-                    <rect width="300" height="400" fill="#f0f0f0"/>
-                    <text x="150" y="200" text-anchor="middle" font-family="Arial" font-size="16" fill="#999">
-                        ${text}
-                    </text>
-                </svg>
-            `)}`;
-}
-
-let startX = 0;
-let startY = 0;
-let startTime = 0;
-let isDragging = false;
-let currentTransform = 0;
-
-book.addEventListener('touchstart', handleTouchStart, { passive: false });
-book.addEventListener('touchmove', handleTouchMove, { passive: false });
-book.addEventListener('touchend', handleTouchEnd, { passive: false });
-book.addEventListener('mousedown', handleMouseStart);
-book.addEventListener('mousemove', handleMouseMove);
-book.addEventListener('mouseup', handleMouseEnd);
-book.addEventListener('mouseleave', handleMouseEnd);
-
-function handleTouchStart(e) {
-    if (isFlipping) return;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    startTime = Date.now();
-    isDragging = true;
-    currentTransform = 0;
-}
-
-function handleMouseStart(e) {
-    if (isFlipping) return;
-    startX = e.clientX;
-    startY = e.clientY;
-    startTime = Date.now();
-    isDragging = true;
-    currentTransform = 0;
-    e.preventDefault();
-}
-
-function handleTouchMove(e) {
-    if (!isDragging || isFlipping) return;
-    e.preventDefault();
-    const currentX = e.touches[0].clientX;
-    const currentY = e.touches[0].clientY;
-    const deltaX = currentX - startX;
-    const deltaY = currentY - startY;
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        handleSwipeMove(deltaX);
-    }
-}
-
-function handleMouseMove(e) {
-    if (!isDragging || isFlipping) return;
-    const deltaX = e.clientX - startX;
-    const deltaY = e.clientY - startY;
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        handleSwipeMove(deltaX);
-    }
-}
-
-function handleSwipeMove(deltaX) {
-    const swipeThreshold = 50;
-    const maxRotation = 45;
-    let rotation = Math.max(-maxRotation, Math.min(maxRotation, deltaX / 3));
-    currentTransform = rotation;
-    const currentPageElement = document.querySelector(`.page[data-page="${currentPage}"]`);
-    if (currentPageElement && !currentPageElement.classList.contains('flipped')) {
-        if (deltaX < -swipeThreshold) {
-            currentPageElement.style.transform = `rotateY(${rotation}deg)`;
-            currentPageElement.style.boxShadow = `${rotation / 10}px 10px 20px rgba(0,0,0,${0.3 + Math.abs(rotation / 100)})`;
-        }
-    } else if (currentPage > 0) {
-        const prevPageElement = document.querySelector(`.page[data-page="${currentPage - 1}"]`);
-        if (prevPageElement && prevPageElement.classList.contains('flipped') && deltaX > swipeThreshold) {
-            prevPageElement.style.transform = `rotateY(${-180 + Math.abs(rotation)}deg)`;
-            prevPageElement.style.boxShadow = `${-rotation / 10}px 10px 20px rgba(0,0,0,${0.3 + Math.abs(rotation / 100)})`;
-        }
-    }
-}
-
-function handleTouchEnd(e) {
-    if (!isDragging || isFlipping) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const deltaX = endX - startX;
-    const deltaY = endY - startY;
-    const deltaTime = Date.now() - startTime;
-    handleSwipeEnd(deltaX, deltaY, deltaTime);
-}
-
-function handleMouseEnd(e) {
-    if (!isDragging || isFlipping) return;
-    const deltaX = e.clientX - startX;
-    const deltaY = e.clientY - startY;
-    const deltaTime = Date.now() - startTime;
-    handleSwipeEnd(deltaX, deltaY, deltaTime);
-}
-
-function handleSwipeEnd(deltaX, deltaY, deltaTime) {
-    isDragging = false;
-    const allPages = document.querySelectorAll('.page');
-    allPages.forEach(page => {
-        page.style.transform = '';
-        page.style.boxShadow = '';
-    });
-    const swipeThreshold = 25;
-    const velocity = Math.abs(deltaX) / deltaTime;
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
-        if (deltaX < 0) {
-            nextPage();
-        } else {
-            prevPage();
-        }
-    } else if (velocity > 0.5 && Math.abs(deltaX) > 30) {
-        if (deltaX < 0) {
-            nextPage();
-        } else {
-            prevPage();
-        }
-    }
-}
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' || e.key === ' ') {
-        e.preventDefault();
-        nextPage();
-    } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        prevPage();
-    }
-});
-
-book.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-});
-
-const musicControl = document.getElementById('musicControl');
-const birthdayAudio = document.getElementById('birthdayAudio');
-let isPlaying = false;
-
-birthdayAudio.volume = 0.6;
-
-function toggleMusic() {
-    if (isPlaying) {
-        birthdayAudio.pause();
-        musicControl.innerHTML = '▶';
-        musicControl.classList.remove('playing');
-        musicControl.title = 'Play Music';
-        isPlaying = false;
-    } else {
-        birthdayAudio.play().then(() => {
-            musicControl.innerHTML = '⏸';
-            musicControl.classList.add('playing');
-            musicControl.title = 'Pause Music';
-            isPlaying = true;
-        }).catch(error => {
-
+        requestAnimationFrame(() => {
+            conf.style.top = `${window.innerHeight + 20}px`;
+            conf.style.transform = `rotate(${Math.random() * 720}deg) translateX(${Math.random() * 100 - 50}px)`;
         });
+
+        setTimeout(() => conf.remove(), 4500);
     }
 }
 
-musicControl.addEventListener('click', toggleMusic);
+function showFirework() {
+    const container = document.getElementById('fireworkContainer');
+    if (!container) return;
+    const colors = ['#ff69b4', '#ffd700', '#00f2fe', '#ff1493', '#ffffff'];
 
-birthdayAudio.addEventListener('ended', () => {
-});
+    for (let f = 0; f < 3; f++) {
+        setTimeout(() => {
+            const originX = Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1;
+            const originY = Math.random() * window.innerHeight * 0.5 + window.innerHeight * 0.1;
 
-birthdayAudio.addEventListener('error', (e) => {
-    musicControl.style.display = 'none';
-});
+            for (let i = 0; i < 35; i++) {
+                const spark = document.createElement('div');
+                spark.style.position = 'fixed';
+                spark.style.width = '6px';
+                spark.style.height = '6px';
+                spark.style.borderRadius = '50%';
+                spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                spark.style.boxShadow = `0 0 10px ${spark.style.backgroundColor}`;
+                spark.style.left = `${originX}px`;
+                spark.style.top = `${originY}px`;
+                spark.style.zIndex = '9999';
+                spark.style.transition = 'all 1s cubic-bezier(0.1, 1, 0.1, 1)';
 
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden && isPlaying) {
-        birthdayAudio.pause();
+                container.appendChild(spark);
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 140 + 40;
+
+                requestAnimationFrame(() => {
+                    spark.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`;
+                    spark.style.opacity = '0';
+                });
+
+                setTimeout(() => spark.remove(), 1100);
+            }
+        }, f * 350);
     }
-});
-
-let starsCreated = false;
-function createStars() {
-    if (starsCreated) return; 
-
-    const starsContainer = document.getElementById('starsContainer');
-    starsContainer.innerHTML = '';
-
-    const starCount = 100; 
-    const starSizes = ['small', 'medium', 'large'];
-    const fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.className = `star ${starSizes[Math.floor(Math.random() * starSizes.length)]}`;
-
-        star.style.cssText = `
-            left: ${Math.random() * 100}%;
-            top: ${Math.random() * 100}%;
-            animation-duration: ${Math.random() * 3 + 1}s;
-            animation-delay: ${Math.random() * 2}s;
-        `;
-
-        fragment.appendChild(star);
-    }
-
-    starsContainer.appendChild(fragment);
-    starsCreated = true;
 }
 
 function showStars() {
-    const starsContainer = document.getElementById('starsContainer');
-    createStars();
-    starsContainer.style.display = 'block';
-}
+    const container = document.getElementById('starsContainer');
+    if (!container) return;
+    container.innerHTML = '';
 
-function hideStars() {
-    const starsContainer = document.getElementById('starsContainer');
-    starsContainer.style.display = 'none';
-}
+    const count = window.innerWidth < 768 ? 60 : 120;
+    const sizes = ['small', 'medium', 'large'];
 
-function cleanup() {
-
-    if (typewriterTimeout) {
-        clearTimeout(typewriterTimeout);
-    }
-
-    if (zIndexUpdateTimeout) {
-        clearTimeout(zIndexUpdateTimeout);
-    }
-
-    confettiPool.length = 0;
-    heartPool.length = 0;
-
-    photoCache.clear();
-
-    heartPhotosCreated = 0;
-    starsCreated = false;
-
-    const book = document.getElementById('book');
-    if (book) {
-        const pages = book.querySelectorAll('.page');
-        pages.forEach(page => {
-            page.style.removeProperty('--page-z-index');
-            page.style.removeProperty('--page-flipped-z-index');
-        });
+    for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = `star ${sizes[Math.floor(Math.random() * sizes.length)]}`;
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.animationDuration = `${Math.random() * 3 + 1.5}s`;
+        star.style.animationDelay = `${Math.random() * 2}s`;
+        container.appendChild(star);
     }
 }
 
-let resizeTimeout;
-function handleResize() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
+// ==========================================
+// 6. Audio Player & Fullscreen Handlers
+// ==========================================
+function setupAudioAndControls() {
+    const musicControl = document.getElementById('musicControl');
+    const audio = document.getElementById('birthdayAudio');
+    const toast = document.getElementById('audioNoticeToast');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-        const matrixCanvas = document.getElementById('matrix-rain');
-        if (matrixCanvas) {
-            matrixCanvas.width = window.innerWidth;
-            matrixCanvas.height = window.innerHeight;
-        }
-    }, 100);
-}
+    if (!audio) return;
+    audio.volume = 0.65;
 
-window.addEventListener('resize', handleResize);
-
-window.addEventListener('beforeunload', cleanup);
-
-let zIndexUpdateTimeout;
-
-function calculatePageZIndexes() {
-
-    const book = document.getElementById('book');
-    if (!book) {
-        console.warn('⚠️ [WARNING] Book element not found');
-        return;
-    }
-
-    const pages = book.querySelectorAll('.page');
-    const totalPages = pages.length;
-
-    if (totalPages === 0) {
-        console.warn('⚠️ [WARNING] No pages found in book');
-        return;
-    }
-
-    pages.forEach((page, physicalIndex) => {
-        const logicalPageIndex = physicalIndex * 2;
-        const nextLogicalPageIndex = logicalPageIndex + 1;
-
-        const normalZIndex = totalPages - physicalIndex;
-        const flippedZIndex = physicalIndex + 1;
-
-        page.style.setProperty('--page-z-index', normalZIndex.toString());
-        page.style.setProperty('--page-flipped-z-index', flippedZIndex.toString());
-    });
-
-}
-
-function updatePageZIndexes() {
-    clearTimeout(zIndexUpdateTimeout);
-    zIndexUpdateTimeout = setTimeout(() => {
-        calculatePageZIndexes();
-    }, 100);
-}
-
-function setupPageObserver() {
-    const book = document.getElementById('book');
-    if (!book) {
-        console.warn('⚠️ [WARNING] Book element not found for observer setup');
-        return;
-    }
-
-    const observer = new MutationObserver((mutations) => {
-        let shouldUpdate = false;
-
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList') {
-                shouldUpdate = true;
+    function playAudio() {
+        audio.play().then(() => {
+            if (musicControl) {
+                musicControl.innerHTML = '⏸';
+                musicControl.classList.add('playing');
+                musicControl.title = t('pauseMusic');
             }
+            if (toast) {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 600);
+            }
+            if (typeof initVisualizer === 'function') initVisualizer();
+        }).catch(err => {
+            console.log('Audio autoplay prevented, awaiting user interaction');
         });
+    }
 
-        if (shouldUpdate) {
-            updatePageZIndexes();
+    function toggleAudio() {
+        if (audio.paused) {
+            playAudio();
+        } else {
+            audio.pause();
+            if (musicControl) {
+                musicControl.innerHTML = '▶';
+                musicControl.classList.remove('playing');
+                musicControl.title = t('playMusic');
+            }
         }
-    });
+    }
 
-    observer.observe(book, {
-        childList: true,
-        subtree: true
-    });
+    if (musicControl) musicControl.onclick = toggleAudio;
 
+    // First interaction triggers music
+    document.addEventListener('click', () => {
+        if (audio.paused) playAudio();
+    }, { once: true });
+
+    // Fullscreen Toggle
+    if (fullscreenBtn) {
+        fullscreenBtn.onclick = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        };
+    }
 }
 
-window.debugBookImages = function() {
-    const allImages = document.querySelectorAll('.page img');
-    allImages.forEach((img, index) => {
-        const pageIndex = img.getAttribute('data-page-index');
-        const imageUrl = img.getAttribute('data-image-url');
+// ==========================================
+// 7. Initialization Lifecycle
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    initCursorBubble();
+    showStars();
+    initMatrixRain();
+    setupBookGestures();
+    setupAudioAndControls();
+
+    // Start particle engine
+    S.init();
+    applyLoadedSettings();
+
+    // Resize handling
+    window.addEventListener('resize', () => {
+        clearTimeout(window.resizeDebounce);
+        window.resizeDebounce = setTimeout(() => {
+            initMatrixRain();
+        }, 150);
     });
-};
+});
