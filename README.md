@@ -2,7 +2,7 @@
 
 A beautiful, interactive birthday website with animations, music, and a photo book feature. Perfect for creating memorable birthday surprises!
 
-![Birthday Site](./image/site-img-1.png)
+![Birthday Site Preview](./image/site-img-1.png)
 
 ![Birthday Site Preview](./image/site-img-2.png)
 
