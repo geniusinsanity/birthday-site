@@ -10,27 +10,15 @@ A beautiful, interactive birthday website with animations, music, and a photo bo
 - 📖 **Interactive Photo Book**: 3D book with customizable pages
 - 🎵 **Background Music**: Auto-playing birthday music (can be paused/played)
 - 🎨 **Customizable Themes**: Choose from Pink, Blue, Purple, or create your own custom colors
-- 🌐 **Multi-language Support**: English and Vietnamese
+- 🌐 **Multi-language Support**: English and French
 - 📱 **Responsive Design**: Works on desktop, tablet, and mobile devices
-- 🔐 **Google Authentication**: Optional login feature
 
 ## 🚀 Quick Start
 
 ### Option 1: Open Directly
 Simply double-click `index.html` to open the site in your default browser.
 
-### Option 2: Local Server (Recommended)
-```bash
-# Using Python
-python -m http.server 8000
-
-# Using Node.js
-npx http-server
-
-# Then open: http://localhost:8000
-```
-
-### Option 3: VS Code Live Server
+### Option 2: VS Code Live Server
 1. Open the folder in VS Code
 2. Right-click on `index.html`
 3. Select "Open with Live Server"
@@ -129,39 +117,6 @@ gs-birthday-site/
 └── 📁 music/
     └── zahra.mp3             # Background music
 ```
-
-## 🌐 Deployment
-
-### Deploy to GitHub Pages
-1. Push this repository to GitHub
-2. Go to repository Settings → Pages
-3. Select branch `main` and folder `/` (root)
-4. Save and wait for deployment
-5. Your site will be live at `https://yourusername.github.io/repository-name`
-
-### Deploy to Vercel
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-```
-
-### Deploy to Netlify
-1. Drag and drop the entire folder to [Netlify Drop](https://app.netlify.com/drop)
-2. Or connect your GitHub repository
-
-## ⚙️ Configuration
-
-### Remove DevTools Protection
-If you want to enable browser developer tools:
-1. Open `index.html`
-2. Remove or comment out lines 233-245 (the DevTools detection script)
-
-### Disable Auto-play Music
-1. Open `index.html`
-2. Line 187: Remove the `autoplay` attribute from the `<audio>` tag
 
 ## 🛠️ Requirements
 
