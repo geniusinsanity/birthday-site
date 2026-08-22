@@ -1,4 +1,4 @@
-// Core UI & Animation Engine for Romantic Birthday Website
+// Core UI, Matrix Rain & Particle Morphing Engine for Romantic Birthday Website
 
 let matrixInterval = null;
 let matrixChars = "HAPPYBIRTHDAY".split("");
@@ -14,16 +14,16 @@ let heartPhotosCreated = 0;
 // 1. Matrix Rain Background Effect
 // ==========================================
 function initMatrixRain() {
-    const canvas = document.getElementById('matrix-rain');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const matrixCanvas = document.getElementById('matrix-rain');
+    if (!matrixCanvas) return;
+    const matrixCtx = matrixCanvas.getContext('2d');
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    matrixCanvas.width = window.innerWidth;
+    matrixCanvas.height = window.innerHeight;
 
     const isMobile = window.innerWidth < 768;
     const fontSize = isMobile ? 14 : 22;
-    const columns = Math.floor(canvas.width / fontSize);
+    const columns = Math.floor(matrixCanvas.width / fontSize);
     const drops = [];
     const delays = [];
     const started = [];
@@ -34,12 +34,12 @@ function initMatrixRain() {
         matrixText: 'HAPPYBIRTHDAY'
     };
 
-    const chars = currentSettings.matrixText.split('');
-    const maxLength = Math.floor(canvas.height / fontSize) + 4;
+    const chars = (currentSettings.matrixText || "HAPPYBIRTHDAY").split("");
+    const maxLength = Math.floor(matrixCanvas.height / fontSize) + 3;
 
     for (let x = 0; x < columns; x++) {
         drops[x] = 0;
-        delays[x] = Math.random() * 2000;
+        delays[x] = Math.random() * 1500;
         started[x] = false;
     }
 
@@ -48,9 +48,9 @@ function initMatrixRain() {
     if (matrixInterval) clearInterval(matrixInterval);
 
     function drawMatrixRain() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = `bold ${fontSize}px Menlo, Consolas, monospace`;
+        matrixCtx.fillStyle = "rgba(0, 0, 0, 0.06)";
+        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        matrixCtx.font = `bold ${fontSize}px Menlo, Consolas, monospace`;
 
         const currentTime = Date.now();
 
@@ -63,20 +63,20 @@ function initMatrixRain() {
                 const char = chars[Math.floor(Math.random() * chars.length)] || '❤';
                 const x = i * fontSize;
                 const y = drops[i] * fontSize;
-                const color = i % 2 === 0 ? currentSettings.matrixColor1 : currentSettings.matrixColor2;
+                const color = i % 2 === 0 ? (currentSettings.matrixColor1 || '#ff69b4') : (currentSettings.matrixColor2 || '#ff1493');
 
-                ctx.fillStyle = color;
-                ctx.shadowColor = color;
-                ctx.shadowBlur = 8;
-                ctx.fillText(char, x, y);
-                ctx.shadowBlur = 0;
+                matrixCtx.fillStyle = color;
+                matrixCtx.shadowColor = color;
+                matrixCtx.shadowBlur = 8;
+                matrixCtx.fillText(char, x, y);
+                matrixCtx.shadowBlur = 0;
             }
 
             if (started[i]) drops[i]++;
 
             if (drops[i] >= maxLength) {
                 drops[i] = 0;
-                delays[i] = Math.random() * 1200;
+                delays[i] = Math.random() * 1000;
                 started[i] = false;
             }
         }
@@ -86,12 +86,13 @@ function initMatrixRain() {
 }
 
 // ==========================================
-// 2. Particle Morphing Engine (S.js)
+// 2. High-Performance Particle Engine (S.js)
 // ==========================================
 const S = {
     initialized: false,
     init: function () {
         S.Drawing.init('.canvas');
+        document.body.classList.add('body--ready');
         S.Drawing.loop(function () {
             S.Shape.render();
         });
@@ -141,8 +142,240 @@ S.Drawing = (function () {
     };
 }());
 
+S.Point = function (args) {
+    this.x = args.x;
+    this.y = args.y;
+    this.z = args.z;
+    this.a = args.a;
+    this.h = args.h;
+};
+
+S.Color = function (r, g, b, a) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+};
+
+S.Color.prototype.render = function () {
+    return `rgba(${this.r},${this.g},${this.b},${this.a})`;
+};
+
+S.Dot = function (x, y) {
+    this.p = new S.Point({
+        x: x,
+        y: y,
+        z: window.innerWidth < 768 ? 2.5 : 3.8,
+        a: 1,
+        h: 0
+    });
+    this.e = 0.08;
+    this.s = true;
+    const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
+    const rgb = hexToRgb(currentSettings.sequenceColor);
+    this.c = new S.Color(rgb.r, rgb.g, rgb.b, this.p.a);
+    this.t = new S.Point({ x: x, y: y, z: this.p.z, a: 1, h: 0 });
+    this.q = [];
+};
+
+S.Dot.prototype = {
+    _draw: function () {
+        const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
+        const rgb = hexToRgb(currentSettings.sequenceColor);
+        this.c.r = rgb.r;
+        this.c.g = rgb.g;
+        this.c.b = rgb.b;
+        this.c.a = this.p.a;
+        S.Drawing.drawCircle(this.p, this.c);
+    },
+    _moveTowards: function (n) {
+        const dx = this.p.x - n.x;
+        const dy = this.p.y - n.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        const e = this.e * d;
+
+        if (this.p.h === -1) {
+            this.p.x = n.x;
+            this.p.y = n.y;
+            return true;
+        }
+
+        if (d > 1) {
+            this.p.x -= (dx / d) * e;
+            this.p.y -= (dy / d) * e;
+        } else {
+            if (this.p.h > 0) this.p.h--;
+            else return true;
+        }
+        return false;
+    },
+    _update: function () {
+        if (this._moveTowards(this.t)) {
+            const p = this.q.shift();
+            if (p) {
+                this.t.x = p.x || this.p.x;
+                this.t.y = p.y || this.p.y;
+                this.t.z = p.z || this.p.z;
+                this.t.a = p.a || this.p.a;
+                this.p.h = p.h || 0;
+            } else {
+                if (this.s) {
+                    this.p.x -= Math.sin(Math.random() * 1.5);
+                    this.p.y -= Math.sin(Math.random() * 1.5);
+                } else {
+                    this.move(new S.Point({
+                        x: this.p.x + (Math.random() * 40) - 20,
+                        y: this.p.y + (Math.random() * 40) - 20
+                    }));
+                }
+            }
+        }
+    },
+    move: function (p) {
+        this.q.push(p);
+    },
+    render: function () {
+        this._update();
+        this._draw();
+    }
+};
+
+S.ShapeBuilder = (function () {
+    const shapeCanvas = document.createElement('canvas');
+    const shapeContext = shapeCanvas.getContext('2d');
+    const baseFontSize = 500;
+    const fontFamily = 'Plus Jakarta Sans, sans-serif';
+
+    function getGap() {
+        return window.innerWidth < 768 ? 5 : 7;
+    }
+
+    function fit() {
+        const gap = getGap();
+        shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
+        shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
+        shapeContext.fillStyle = '#ff69b4';
+        shapeContext.textBaseline = 'middle';
+        shapeContext.textAlign = 'center';
+    }
+
+    function processCanvas() {
+        const gap = getGap();
+        const pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
+        const dots = [];
+        let x = 0, y = 0, fx = shapeCanvas.width, fy = shapeCanvas.height, w = 0, h = 0;
+
+        for (let p = 0; p < pixels.length; p += (4 * gap)) {
+            if (pixels[p + 3] > 64) {
+                dots.push(new S.Point({ x: x, y: y }));
+                w = x > w ? x : w;
+                h = y > h ? y : h;
+                fx = x < fx ? x : fx;
+                fy = y < fy ? y : fy;
+            }
+            x += gap;
+            if (x >= shapeCanvas.width) {
+                x = 0;
+                y += gap;
+                p += gap * 4 * shapeCanvas.width;
+            }
+        }
+        return { dots: dots, w: w + fx, h: h + fy };
+    }
+
+    function setFontSize(s) {
+        shapeContext.font = `bold ${s}px ${fontFamily}`;
+    }
+
+    function init() {
+        fit();
+        window.addEventListener('resize', fit);
+    }
+    init();
+
+    return {
+        letter: function (l) {
+            fit();
+            setFontSize(baseFontSize);
+            const textMetrics = shapeContext.measureText(l);
+            const textWidth = textMetrics.width || 100;
+            const isLandscape = window.innerWidth > window.innerHeight;
+
+            const s = Math.min(
+                baseFontSize,
+                (shapeCanvas.width / textWidth) * 0.85 * baseFontSize,
+                (shapeCanvas.height / baseFontSize) * (isLandscape ? 0.7 : 0.4) * baseFontSize
+            );
+
+            setFontSize(s);
+            shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+            shapeContext.fillText(l, shapeCanvas.width / 2, shapeCanvas.height / 2);
+            return processCanvas();
+        }
+    };
+}());
+
+S.Shape = (function () {
+    let dots = [];
+    let width = 0, height = 0, cx = 0, cy = 0;
+
+    function compensate() {
+        const a = S.Drawing.getArea();
+        cx = a.w / 2 - width / 2;
+        cy = a.h / 2 - height / 2;
+    }
+
+    return {
+        switchShape: function (n, fast) {
+            const a = S.Drawing.getArea();
+            width = n.w;
+            height = n.h;
+            compensate();
+
+            if (n.dots.length > dots.length) {
+                const diff = n.dots.length - dots.length;
+                for (let d = 0; d < diff; d++) {
+                    dots.push(new S.Dot(a.w / 2, a.h / 2));
+                }
+            }
+
+            let d = 0;
+            while (n.dots.length > 0) {
+                const i = Math.floor(Math.random() * n.dots.length);
+                dots[d].e = fast ? 0.22 : 0.12;
+                dots[d].s = true;
+                dots[d].move(new S.Point({
+                    x: n.dots[i].x + cx,
+                    y: n.dots[i].y + cy,
+                    a: 1,
+                    z: window.innerWidth < 768 ? 2.5 : 3.8,
+                    h: 0
+                }));
+                n.dots.splice(i, 1);
+                d++;
+            }
+
+            for (let i = d; i < dots.length; i++) {
+                dots[i].s = false;
+                dots[i].move(new S.Point({
+                    x: Math.random() * a.w,
+                    y: Math.random() * a.h,
+                    a: 0.1,
+                    z: 1,
+                    h: 0
+                }));
+            }
+        },
+        render: function () {
+            for (let d = 0; d < dots.length; d++) {
+                dots[d].render();
+            }
+        }
+    };
+}());
+
 S.UI = (function () {
-    let interval;
+    let interval = null;
     let sequence = [];
     const cmd = '#';
 
@@ -175,9 +408,9 @@ S.UI = (function () {
 
         function getDynamicDelay(str) {
             const isMobile = window.innerWidth < 768;
-            const base = isMobile ? 1700 : 1900;
+            const base = isMobile ? 1800 : 2000;
             if (!str || str.startsWith(cmd)) return base;
-            return base + Math.max(0, (str.length - 4) * 100);
+            return base + Math.max(0, (str.length - 4) * 120);
         }
 
         timedAction(function () {
@@ -237,181 +470,6 @@ S.UI = (function () {
             sequence = [];
             if (destroy && S.Shape) {
                 S.Shape.switchShape(S.ShapeBuilder.letter(''));
-            }
-        }
-    };
-}());
-
-S.Point = function (args) {
-    this.x = args.x;
-    this.y = args.y;
-    this.z = args.z;
-    this.a = args.a;
-    this.h = args.h;
-};
-
-S.Color = function (r, g, b, a) {
-    this.r = r;
-    this.g = g;
-    this.b = b;
-    this.a = a;
-};
-
-S.Color.prototype.render = function () {
-    return `rgba(${this.r},${this.g},${this.b},${this.a})`;
-};
-
-S.Dot = function (x, y) {
-    this.p = new S.Point({
-        x: x,
-        y: y,
-        z: window.innerWidth < 768 ? 2.5 : 4.0,
-        a: 1,
-        h: 0
-    });
-    this.e = 0.08;
-    this.s = true;
-    const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
-    const rgb = hexToRgb(currentSettings.sequenceColor);
-    this.c = new S.Color(rgb.r, rgb.g, rgb.b, this.p.a);
-    this.t = new S.Point({ x: x, y: y, z: this.p.z, a: 1, h: 0 });
-    this.q = [];
-};
-
-S.Dot.prototype = {
-    _draw: function () {
-        const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
-        const rgb = hexToRgb(currentSettings.sequenceColor);
-        this.c.r = rgb.r;
-        this.c.g = rgb.g;
-        this.c.b = rgb.b;
-        this.c.a = this.p.a;
-        S.Drawing.drawCircle(this.p, this.c);
-    },
-    _moveTowards: function (n) {
-        const dx = this.p.x - n.x;
-        const dy = this.p.y - n.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        const e = this.e * d;
-
-        if (this.p.h === -1) {
-            this.p.x = n.x;
-            this.p.y = n.y;
-            return true;
-        }
-
-        if (d > 1) {
-            this.p.x -= (dx / d) * e;
-            this.p.y -= (dy / d) * e;
-        } else {
-            return true;
-        }
-        return false;
-    },
-    _update: function () {
-        if (this._moveTowards(this.t)) {
-            const p = this.q.shift();
-            if (p) {
-                this.t.x = p.x || this.p.x;
-                this.t.y = p.y || this.p.y;
-                this.t.z = p.z || this.p.z;
-                this.t.a = p.a || this.p.a;
-            } else {
-                this.p.x -= Math.sin(Math.random() * 2);
-                this.p.y -= Math.sin(Math.random() * 2);
-            }
-        }
-    },
-    move: function (p) {
-        this.q.push(p);
-    },
-    render: function () {
-        this._update();
-        this._draw();
-    }
-};
-
-S.ShapeBuilder = (function () {
-    const shapeCanvas = document.createElement('canvas');
-    const shapeContext = shapeCanvas.getContext('2d');
-    const fontSize = 500;
-    const fontFamily = 'Plus Jakarta Sans, Pacifico, sans-serif';
-
-    function processCanvas() {
-        const pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
-        const dots = [];
-        const gap = window.innerWidth < 768 ? 6 : 7;
-
-        for (let x = 0; x < shapeCanvas.width; x += gap) {
-            for (let y = 0; y < shapeCanvas.height; y += gap) {
-                const i = (y * shapeCanvas.width + x) * 4;
-                if (pixels[i + 3] > 128) {
-                    dots.push(new S.Point({ x: x, y: y }));
-                }
-            }
-        }
-        return dots;
-    }
-
-    function setFontSize(s) {
-        shapeContext.font = `bold ${s}px ${fontFamily}`;
-    }
-
-    return {
-        letter: function (l) {
-            setFontSize(fontSize);
-            const s = Math.min(
-                fontSize,
-                (shapeCanvas.width / shapeContext.measureText(l).width) * 0.85 * fontSize,
-                (shapeCanvas.height / fontSize) * (window.innerWidth > window.innerHeight ? 0.75 : 0.45) * fontSize
-            );
-            setFontSize(s);
-
-            shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
-            shapeCanvas.width = Math.floor(window.innerWidth);
-            shapeCanvas.height = Math.floor(window.innerHeight);
-
-            setFontSize(s);
-            shapeContext.textAlign = 'center';
-            shapeContext.textBaseline = 'middle';
-            shapeContext.fillStyle = '#ffffff';
-            shapeContext.fillText(l, shapeCanvas.width / 2, shapeCanvas.height / 2);
-
-            return processCanvas();
-        }
-    };
-}());
-
-S.Shape = (function () {
-    let dots = [];
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    return {
-        switchShape: function (n, fast) {
-            const size = n.length;
-            let i = 0;
-
-            for (i = 0; i < size; i++) {
-                if (!dots[i]) {
-                    dots[i] = new S.Dot(width / 2, height / 2);
-                }
-                dots[i].e = fast ? 0.15 : 0.08;
-                dots[i].move(n[i]);
-            }
-
-            for (; i < dots.length; i++) {
-                dots[i].move(new S.Point({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    a: 0,
-                    z: 0
-                }));
-            }
-        },
-        render: function () {
-            for (let i = 0; i < dots.length; i++) {
-                dots[i].render();
             }
         }
     };
@@ -581,7 +639,6 @@ function typewriterEffect(element, text, speed = 30) {
     type();
 }
 
-// Touch swipe support & keyboard
 function setupBookGestures() {
     const book = document.getElementById('book');
     if (!book) return;
@@ -791,7 +848,6 @@ function setupAudioAndControls() {
                 musicControl.innerHTML = '⏸';
                 musicControl.classList.add('playing');
             }
-            if (typeof initVisualizer === 'function') initVisualizer();
         }).catch(() => {});
     }
 

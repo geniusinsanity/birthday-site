@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bday-site-v2';
+const CACHE_NAME = 'bday-site-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -6,7 +6,6 @@ const urlsToCache = [
   './lang.js',
   './jscp/settings.js',
   './jscp/timeline.js',
-  './jscp/visualizer.js',
   './jscp/3d_cake.js',
   './jscp/minigame.js',
   './jscp/ui.js',
