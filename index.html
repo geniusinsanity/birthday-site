@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css?v=3">
 </head>
 
 <body>
@@ -206,20 +206,27 @@
     }
     </script>
 
-    <!-- Modules (Visualizer removed) -->
-    <script src="./lang.js"></script>
-    <script src="./jscp/settings.js"></script>
-    <script src="./jscp/timeline.js"></script>
-    <script src="./jscp/3d_cake.js"></script>
-    <script src="./jscp/minigame.js"></script>
-    <script src="./jscp/ui.js"></script>
+    <!-- Modules with cache buster -->
+    <script src="./lang.js?v=3"></script>
+    <script src="./jscp/settings.js?v=3"></script>
+    <script src="./jscp/timeline.js?v=3"></script>
+    <script src="./jscp/3d_cake.js?v=3"></script>
+    <script src="./jscp/minigame.js?v=3"></script>
+    <script src="./jscp/ui.js?v=3"></script>
 
-    <!-- Service Worker -->
     <script>
+        // Clear all old caches on reload to guarantee fresh execution
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
             });
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    for (let name of names) caches.delete(name);
+                });
+            }
         }
     </script>
 </body>
