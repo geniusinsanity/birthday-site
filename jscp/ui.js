@@ -1,17 +1,22 @@
 // Core UI Engine: Matrix Rain, Particle Words Sequence, 3D Book, Heart Cardioid Constellation
 
-let matrixInterval = null;
+let matrixAnimationId = null;
 let matrixChars = "HAPPYBIRTHDAY".split("");
 let currentPage = 0;
 let isFlipping = false;
 let isBookFinished = false;
 let typewriterTimeout = null;
 let photoUrls = [];
-let maxHeartPhotos = 24;
+let maxHeartPhotos = 20;
 let heartPhotosCreated = 0;
+let isSequenceRunning = false;
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // ==========================================
-// 1. Matrix Rain Background Effect
+// 1. Matrix Rain Background Effect (High Performance, 60fps)
 // ==========================================
 function initMatrixRain() {
     const matrixCanvas = document.getElementById('matrix-rain');
@@ -20,15 +25,11 @@ function initMatrixRain() {
 
     matrixCanvas.width = window.innerWidth;
     matrixCanvas.height = window.innerHeight;
-    matrixCanvas.style.display = 'block';
 
     const isMobile = window.innerWidth < 768;
     const fontSize = isMobile ? 14 : 22;
-    const intervalTime = isMobile ? 45 : 50;
-
     const columns = Math.floor(matrixCanvas.width / fontSize);
     const drops = [];
-    const columnColors = [];
     const delays = [];
     const started = [];
 
@@ -43,19 +44,26 @@ function initMatrixRain() {
 
     for (let x = 0; x < columns; x++) {
         drops[x] = 0;
-        columnColors[x] = x % 2 === 0 ? currentSettings.matrixColor1 : currentSettings.matrixColor2;
-        delays[x] = Math.random() * 1800;
+        delays[x] = Math.random() * 1500;
         started[x] = false;
     }
 
+    let lastDrawTime = 0;
+    const frameInterval = isMobile ? 45 : 40;
     const startTime = Date.now();
 
-    if (matrixInterval) clearInterval(matrixInterval);
+    if (matrixAnimationId) cancelAnimationFrame(matrixAnimationId);
 
-    function drawMatrixRain() {
-        matrixCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    function drawMatrixRain(timestamp) {
+        matrixAnimationId = requestAnimationFrame(drawMatrixRain);
+
+        if (timestamp - lastDrawTime < frameInterval) return;
+        lastDrawTime = timestamp;
+
+        // Clean fading background trail
+        matrixCtx.fillStyle = "rgba(0, 0, 0, 0.07)";
         matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-        matrixCtx.font = "bold " + fontSize + "px Menlo, Consolas, 'Liberation Mono', monospace";
+        matrixCtx.font = `bold ${fontSize}px Menlo, Consolas, monospace`;
 
         const currentTime = Date.now();
 
@@ -65,60 +73,36 @@ function initMatrixRain() {
             }
 
             if (started[i] && drops[i] < maxLength) {
-                const text = chars[Math.floor(Math.random() * chars.length)] || '❤';
+                const char = chars[Math.floor(Math.random() * chars.length)] || '❤';
                 const x = i * fontSize;
                 const y = drops[i] * fontSize;
-                const color = columnColors[i] || currentSettings.matrixColor1;
+                const color = i % 2 === 0 ? (currentSettings.matrixColor1 || '#ff69b4') : (currentSettings.matrixColor2 || '#ff1493');
 
                 matrixCtx.fillStyle = color;
-                matrixCtx.shadowColor = color;
-                matrixCtx.shadowBlur = 8;
-                matrixCtx.fillText(text, x, y);
-                matrixCtx.shadowBlur = 0;
+                matrixCtx.fillText(char, x, y);
             }
 
             if (started[i]) drops[i]++;
 
             if (drops[i] >= maxLength) {
                 drops[i] = 0;
-                delays[i] = Math.random() * 900;
+                delays[i] = Math.random() * 800;
                 started[i] = false;
             }
         }
     }
 
-    matrixInterval = setInterval(drawMatrixRain, intervalTime);
-
-    window.addEventListener('resize', () => {
-        clearTimeout(window.matrixResizeTimeout);
-        window.matrixResizeTimeout = setTimeout(() => {
-            matrixCanvas.width = window.innerWidth;
-            matrixCanvas.height = window.innerHeight;
-            const newColumns = Math.floor(matrixCanvas.width / fontSize);
-            drops.length = 0;
-            columnColors.length = 0;
-            delays.length = 0;
-            started.length = 0;
-
-            for (let x = 0; x < newColumns; x++) {
-                drops[x] = 0;
-                columnColors[x] = x % 2 === 0 ? currentSettings.matrixColor1 : currentSettings.matrixColor2;
-                delays[x] = Math.random() * 900;
-                started[x] = false;
-            }
-        }, 100);
-    });
+    matrixAnimationId = requestAnimationFrame(drawMatrixRain);
 }
 
 // ==========================================
-// 2. Particle Words Sequence Engine (S.js)
+// 2. High-Performance Particle Engine (S.js)
 // ==========================================
 const S = {
     initialized: false,
     init: function () {
         S.Drawing.init('.canvas');
         document.body.classList.add('body--ready');
-
         S.Drawing.loop(function () {
             S.Shape.render();
         });
@@ -192,11 +176,11 @@ S.Dot = function (x, y) {
     this.p = new S.Point({
         x: x,
         y: y,
-        z: isMobile ? 2.5 : 3.8,
+        z: isMobile ? 2.8 : 4.0,
         a: 1,
         h: 0
     });
-    this.e = 0.08;
+    this.e = 0.11;
     this.s = true;
     const currentSettings = window.settings || { sequenceColor: '#ff69b4' };
     const rgb = hexToRgb(currentSettings.sequenceColor || '#ff69b4');
@@ -221,18 +205,11 @@ S.Dot.prototype = {
         const d = Math.sqrt(dx * dx + dy * dy);
         const e = this.e * d;
 
-        if (this.p.h === -1) {
-            this.p.x = n.x;
-            this.p.y = n.y;
-            return true;
-        }
-
         if (d > 1) {
             this.p.x -= (dx / d) * e;
             this.p.y -= (dy / d) * e;
         } else {
-            if (this.p.h > 0) this.p.h--;
-            else return true;
+            return true;
         }
         return false;
     },
@@ -244,10 +221,9 @@ S.Dot.prototype = {
                 this.t.y = p.y !== undefined ? p.y : this.p.y;
                 this.t.z = p.z !== undefined ? p.z : this.p.z;
                 this.t.a = p.a !== undefined ? p.a : this.p.a;
-                this.p.h = p.h || 0;
-            } else if (this.s) {
-                this.p.x -= Math.sin(Math.random() * 1.5);
-                this.p.y -= Math.sin(Math.random() * 1.5);
+            } else if (!this.s) {
+                this.p.x += (Math.random() - 0.5) * 1.5;
+                this.p.y += (Math.random() - 0.5) * 1.5;
             }
         }
     },
@@ -267,118 +243,92 @@ S.ShapeBuilder = (function () {
     const fontFamily = 'Plus Jakarta Sans, sans-serif';
 
     function getGap() {
-        return window.innerWidth < 768 ? 4 : 6;
+        return window.innerWidth < 768 ? 6 : 8;
     }
-
-    function fit() {
-        const gap = getGap();
-        shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
-        shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
-        shapeContext.fillStyle = '#ff69b4';
-        shapeContext.textBaseline = 'middle';
-        shapeContext.textAlign = 'center';
-    }
-
-    function processCanvas() {
-        const gap = getGap();
-        const pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
-        const dots = [];
-        let x = 0, y = 0, fx = shapeCanvas.width, fy = shapeCanvas.height, w = 0, h = 0;
-
-        for (let p = 0; p < pixels.length; p += (4 * gap)) {
-            if (pixels[p + 3] > 60) {
-                dots.push(new S.Point({ x, y }));
-                w = x > w ? x : w;
-                h = y > h ? y : h;
-                fx = x < fx ? x : fx;
-                fy = y < fy ? y : fy;
-            }
-            x += gap;
-            if (x >= shapeCanvas.width) {
-                x = 0;
-                y += gap;
-                p += gap * 4 * shapeCanvas.width;
-            }
-        }
-        return { dots: dots, w: w + fx, h: h + fy };
-    }
-
-    function setFontSize(s) {
-        shapeContext.font = `bold ${s}px ${fontFamily}`;
-    }
-
-    function init() {
-        fit();
-        window.addEventListener('resize', fit);
-    }
-    init();
 
     return {
         letter: function (l) {
-            fit();
-            setFontSize(baseFontSize);
-            const isSmall = window.innerWidth < 768;
-            const textMetrics = shapeContext.measureText(l);
-            const textWidth = textMetrics.width || 100;
-            const isLandscape = window.innerWidth > window.innerHeight;
+            const gap = getGap();
+            const w = Math.max(window.innerWidth, 400);
+            const h = Math.max(window.innerHeight, 400);
 
-            const s = Math.min(
-                baseFontSize,
-                (shapeCanvas.width / textWidth) * 0.85 * baseFontSize,
-                (shapeCanvas.height / baseFontSize) * (isLandscape ? 0.7 : 0.4) * baseFontSize
-            );
+            shapeCanvas.width = w;
+            shapeCanvas.height = h;
 
-            setFontSize(s);
-            shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
-            shapeContext.fillText(l, shapeCanvas.width / 2, shapeCanvas.height / 2);
-            return processCanvas();
+            let fontSize = baseFontSize;
+            shapeContext.font = `bold ${fontSize}px ${fontFamily}`;
+            const textWidth = shapeContext.measureText(l).width || 100;
+            const maxWidth = w * 0.85;
+            const isLandscape = w > h;
+            const maxHeight = h * (isLandscape ? 0.65 : 0.4);
+
+            fontSize = Math.min(baseFontSize, (maxWidth / textWidth) * baseFontSize, maxHeight);
+            shapeContext.font = `bold ${fontSize}px ${fontFamily}`;
+            shapeContext.fillStyle = '#ff69b4';
+            shapeContext.textBaseline = 'middle';
+            shapeContext.textAlign = 'center';
+            shapeContext.clearRect(0, 0, w, h);
+            shapeContext.fillText(l, w / 2, h / 2);
+
+            const pixels = shapeContext.getImageData(0, 0, w, h).data;
+            const dots = [];
+            let minX = w, maxX = 0, minY = h, maxY = 0;
+
+            for (let y = 0; y < h; y += gap) {
+                for (let x = 0; x < w; x += gap) {
+                    const idx = (y * w + x) * 4;
+                    if (pixels[idx + 3] > 60) {
+                        dots.push(new S.Point({ x, y }));
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                    }
+                }
+            }
+
+            const boundsW = maxX > minX ? maxX - minX : w;
+            const boundsH = maxY > minY ? maxY - minY : h;
+
+            return {
+                dots: dots,
+                w: boundsW,
+                h: boundsH,
+                centerX: (minX + maxX) / 2,
+                centerY: (minY + maxY) / 2
+            };
         }
     };
 }());
 
 S.Shape = (function () {
     let dots = [];
-    let width = 0, height = 0, cx = 0, cy = 0;
-
-    function compensate() {
-        const a = S.Drawing.getArea();
-        cx = a.w / 2 - width / 2;
-        cy = a.h / 2 - height / 2;
-    }
 
     return {
         switchShape: function (n, fast) {
             const a = S.Drawing.getArea();
-            width = n.w || 0;
-            height = n.h || 0;
-            compensate();
-
             const targetDots = n.dots || [];
 
-            if (targetDots.length > dots.length) {
-                const diff = targetDots.length - dots.length;
-                for (let d = 0; d < diff; d++) {
-                    dots.push(new S.Dot(a.w / 2, a.h / 2));
-                }
+            while (dots.length < targetDots.length) {
+                dots.push(new S.Dot(a.w / 2, a.h / 2));
             }
 
-            let d = 0;
-            while (targetDots.length > 0) {
-                const i = Math.floor(Math.random() * targetDots.length);
-                dots[d].e = fast ? 0.25 : 0.12;
-                dots[d].s = true;
-                dots[d].move(new S.Point({
-                    x: targetDots[i].x + cx,
-                    y: targetDots[i].y + cy,
-                    z: window.innerWidth < 768 ? 2.5 : 3.8,
+            const offsetX = a.w / 2 - (n.centerX || a.w / 2);
+            const offsetY = a.h / 2 - (n.centerY || a.h / 2);
+
+            for (let i = 0; i < targetDots.length; i++) {
+                dots[i].e = fast ? 0.25 : 0.12;
+                dots[i].s = true;
+                dots[i].move(new S.Point({
+                    x: targetDots[i].x + offsetX,
+                    y: targetDots[i].y + offsetY,
+                    z: window.innerWidth < 768 ? 2.8 : 4.0,
                     a: 1,
                     h: 0
                 }));
-                targetDots.splice(i, 1);
-                d++;
             }
 
-            for (let i = d; i < dots.length; i++) {
+            for (let i = targetDots.length; i < dots.length; i++) {
                 dots[i].s = false;
                 dots[i].e = 0.04;
                 dots[i].move(new S.Point({
@@ -391,8 +341,8 @@ S.Shape = (function () {
             }
         },
         render: function () {
-            for (let d = 0; d < dots.length; d++) {
-                dots[d].render();
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].render();
             }
         }
     };
@@ -400,10 +350,6 @@ S.Shape = (function () {
 
 S.UI = (function () {
     let currentSequenceToken = 0;
-
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
     async function runSequence(actionStr, token) {
         const items = typeof actionStr === 'object' ? actionStr : actionStr.split('|').filter(s => s.trim() !== '');
@@ -462,7 +408,7 @@ S.UI = (function () {
 }());
 
 // ==========================================
-// 3. 3D Photo Album (Book) Engine
+// 3. 3D Photo Album (Book) Engine - Dead Centered
 // ==========================================
 function createPages() {
     const book = document.getElementById('book');
@@ -647,7 +593,7 @@ function setupBookGestures() {
 }
 
 // ==========================================
-// 4. Heart Photo Cardioid Constellation
+// 4. Heart Photo Cardioid Constellation (Stage 4)
 // ==========================================
 function startHeartEffect() {
     const currentSettings = window.settings || {};
@@ -667,7 +613,7 @@ function createHeartPhotoCentered(idx, total) {
     const photoUrl = photoUrls[idx % photoUrls.length] || './image/Birthday!/photo1.jpg';
     const photo = document.createElement('img');
     photo.src = photoUrl;
-    photo.className = 'photo';
+    photo.className = 'photo heart-photo-item';
 
     const centerX = window.innerWidth * 0.5;
     const centerY = window.innerHeight * 0.5;
@@ -708,11 +654,20 @@ function spawnHeartPhotosCentered() {
             currentIndex++;
             setTimeout(spawnNext, 85);
         } else {
+            // Heart photos displayed, stay for 3.5s then fade out into timeline
             setTimeout(() => {
-                if (typeof initTimeline === 'function') {
-                    initTimeline();
-                }
-            }, 2500);
+                const photos = document.querySelectorAll('.heart-photo-item');
+                photos.forEach(p => {
+                    p.style.opacity = '0';
+                    p.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                });
+                setTimeout(() => {
+                    photos.forEach(p => p.remove());
+                    if (typeof initTimeline === 'function') {
+                        initTimeline();
+                    }
+                }, 800);
+            }, 3500);
         }
     }
     spawnNext();
